@@ -3,7 +3,7 @@ import { MantineProvider, Text, Button, Group, Container, Input, Stack, Divider,
 import { theme } from "./theme";
 import { useEffect, useState } from "react";
 import * as Colyseus from "colyseus.js";
-import { Card, GameState, Player } from "./types"; // You'll need to update your types to reflect schema
+import { Card, GameState, Player, Trick } from "./types"; // You'll need to update your types to reflect schema
 
 export default function App() {
   const [client] = useState(() => new Colyseus.Client("ws://localhost:2567"));
@@ -17,6 +17,8 @@ export default function App() {
   const [currentPlayer, setCurrentPlayer] = useState("");
   const [gameStage, setGameStage] = useState("");
   const [gameOver, setGameOver] = useState(false);
+
+  const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
 
   const joinRoom = async () => {
     if (!displayName.trim()) return;
@@ -62,6 +64,8 @@ export default function App() {
         console.log("About to set game stage to: ", state.currentGameStage);
         setCurrentPlayer(state.currentPlayer);
         setGameStage(state.currentGameStage);
+
+        setCompletedTricks(Array.from(state.completedTricks));
 
         // Game over check
         setGameOver(state.currentGameStage === "game_end");
@@ -149,6 +153,24 @@ export default function App() {
                     </Button>
                   ))}
                 </Group>
+
+                <Stack mb="sm">
+                  {
+                    completedTricks
+                      .filter((trick) => trick.trickWinner === room?.sessionId)
+                      .map((trick, index) => (
+                      <Group key={index}>
+                        {
+                          trick.playedCards.map((card, cardIndex) => (
+                            <Text key={cardIndex}>
+                              {card.color} {card.number}
+                            </Text>
+                          ))
+                        }
+                      </Group>
+                    ))
+                  }
+                </Stack>
 
                 {gameStage === "trick_end" && isMyTurn && (
                   <Button onClick={finishTrick} color="green">
