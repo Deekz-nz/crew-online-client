@@ -4,6 +4,8 @@ import { theme } from "./theme";
 import { useEffect, useState } from "react";
 import * as Colyseus from "colyseus.js";
 import { Card, GameState, Player, SimpleTask, Trick } from "./types"; // You'll need to update your types to reflect schema
+import { GameCard } from "./components/GameCard";
+import { GameHand } from "./components/GameHand";
 
 export default function App() {
   const [client] = useState(() => new Colyseus.Client("ws://localhost:2567"));
@@ -307,6 +309,21 @@ export default function App() {
             )}
           </>
         )}
+        <GameHand
+          hand={[
+            { color: 'blue', number: 7 },
+            { color: 'black', number: 4 },
+            { color: 'green', number: 9 },
+            { color: 'pink', number: 1 },
+            { color: 'yellow', number: 6 },
+          ]}
+          overlap
+          cardWidth={120}
+          onCardClick={(card) => console.log(`${card.color} ${card.number}`)}
+        />
+
+
+        <GameCard card={{color:'yellow', number:6}} size={100} shadow isTask onClick={() => console.log("TASK yellow 6")} />
       </Container>
     </MantineProvider>
   );
