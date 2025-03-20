@@ -14,7 +14,6 @@ interface GameCardProps {
   shadow?: boolean;
   onClick?: () => void;
   disabled?: boolean; 
-  isTask?: boolean;
   showHoverAnimation?: boolean; 
 }
 
@@ -35,11 +34,11 @@ const iconMap = {
   black: IconRocket,
 };
 
-export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = true, onClick, disabled, isTask, showHoverAnimation }) => {
+export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = true, onClick, disabled, showHoverAnimation }) => {
   const { color, number } = card;
   const { background, dark } = colorStyles[color];
   const IconComponent = iconMap[color];
-  const height = size * (isTask ? 1.2 : 1.4); // Aspect ratio 5:7 for cards, 5:6 for tasks
+  const height = size * 1.4; // Aspect ratio 5:7
   const isBlack = color === 'black';
   const numberStyle: React.CSSProperties = {
     fontWeight: 'bold',
@@ -50,7 +49,6 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
   };
 
   const isInteractive = onClick && !disabled;
-  const canHover = isInteractive && showHoverAnimation;
 
   const cardStyle: React.CSSProperties = {
     width: `${size}px`,
@@ -67,7 +65,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
     transition: 'transform 0.15s ease, filter 0.15s ease',
   };
   
-  const shiftUp = size * (isTask ? 1.2 : 1.4) * 0.25; // 25% of height
+  const shiftUp = height * 0.25; // 25% of height
   const cardHoverStyle: React.CSSProperties = {
     transform: `scale(1.03) translateY(-${shiftUp}px)`,
     filter: 'brightness(1.05)',
@@ -85,10 +83,10 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
       style={cardStyle}
       onClick={isInteractive ? onClick : undefined}
       onMouseEnter={(e) => {
-        if (canHover) Object.assign(e.currentTarget.style, cardHoverStyle);
+        if (showHoverAnimation) Object.assign(e.currentTarget.style, cardHoverStyle);
       }}
       onMouseLeave={(e) => {
-        if (canHover) {
+        if (showHoverAnimation) {
           e.currentTarget.style.transform = '';
           e.currentTarget.style.filter = '';
         }
@@ -97,8 +95,8 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
       {/* Number Corners */}
       <span style={{ ...cornerStyle, top: '6px', left: '8px' }}>{displayNumber}</span>
       <span style={{ ...cornerStyle, top: '6px', right: '8px' }}>{displayNumber}</span>
-      <span style={{ ...cornerStyle, bottom: '6px', left: '8px', transform: 'rotate(180deg)' }}>{displayNumber}</span>
-      <span style={{ ...cornerStyle, bottom: '6px', right: '8px', transform: 'rotate(180deg)' }}>{displayNumber}</span>
+      <span style={{ ...cornerStyle, bottom: '6px', left: '8px'}}>{displayNumber}</span>
+      <span style={{ ...cornerStyle, bottom: '6px', right: '8px'}}>{displayNumber}</span>
   
       {/* Center Icon */}
       <IconComponent size={size * 0.5} color={dark} />

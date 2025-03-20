@@ -228,18 +228,13 @@ export default function App() {
                 </Group>
 
                 <Text fw={500}>Your Hand:</Text>
-                <Group mb="sm">
-                  {hand.map((card, index) => (
-                    <Button
-                      key={index}
-                      onClick={() => playCard(card)}
-                      disabled={!isMyTurn || gameStage !== "trick_start" && gameStage !== "trick_middle"}
-                      color={card.color}
-                    >
-                      {card.color} {card.number}
-                    </Button>
-                  ))}
-                </Group>
+                <GameHand
+                  hand={hand}
+                  overlap
+                  cardWidth={120}
+                  disabled={!isMyTurn || (gameStage !== "trick_start" && gameStage !== "trick_middle")}
+                  onCardClick={(card) => playCard(card)}
+                />
                 <Divider my="sm" />
                 <Text fw={500}>Tasks:</Text>
                 <Group mb="sm" wrap="wrap">
@@ -309,7 +304,7 @@ export default function App() {
             )}
           </>
         )}
-        <GameHand
+        {/* <GameHand
           hand={[
             { color: 'blue', number: 7 },
             { color: 'black', number: 4 },
@@ -323,7 +318,7 @@ export default function App() {
         />
 
 
-        <GameCard card={{color:'yellow', number:6}} size={100} shadow isTask onClick={() => console.log("TASK yellow 6")} />
+        <GameCard card={{color:'yellow', number:6}} size={100} shadow isTask onClick={() => console.log("TASK yellow 6")} /> */}
       </Container>
     </MantineProvider>
   );

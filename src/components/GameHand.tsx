@@ -1,6 +1,6 @@
 import React from 'react';
 import { GameCard } from './GameCard';
-import { Card } from '../types';
+import { Card, CardColor } from '../types';
 
 interface GameHandProps {
   hand: Card[];
@@ -8,6 +8,8 @@ interface GameHandProps {
   cardWidth?: number;
   disabled?: boolean;
   onCardClick?: (card: Card, index: number) => void;
+  colorOrder?: CardColor[];
+  lowToHigh?: boolean; 
 }
 
 export const GameHand: React.FC<GameHandProps> = ({
@@ -16,7 +18,26 @@ export const GameHand: React.FC<GameHandProps> = ({
   cardWidth = 100,
   disabled = false,
   onCardClick,
+  colorOrder,
+  lowToHigh,
 }) => {
+  const defaultColorOrder: CardColor[] = ["black", "pink", "blue", "yellow", "green"];
+  const colorPriority = (colorOrder ?? defaultColorOrder).reduce<Record<CardColor, number>>(
+    (acc, color, index) => {
+      acc[color] = index;
+      return acc;
+    },
+    { yellow: 0, green: 0, pink: 0, blue: 0, black: 0 }
+  );
+
+  const sortedHand = [...hand].sort((a, b) => {
+    const colorDiff = colorPriority[a.color] - colorPriority[b.color];
+    if (colorDiff !== 0) return colorDiff;
+  
+    // Same color, sort by number
+    return lowToHigh !== false ? a.number - b.number : b.number - a.number;
+  });
+  
   if (overlap) {
     // Overlapping layout
     const containerWidth = cardWidth + (hand.length - 1) * (cardWidth * 0.5);
@@ -24,7 +45,7 @@ export const GameHand: React.FC<GameHandProps> = ({
 
     return (
       <div style={{ position: 'relative', width: containerWidth, height: cardWidth * 1.4 }}>
-        {hand.map((card, index) => (
+        {sortedHand.map((card, index) => (
           <div
             key={index}
             style={{
@@ -49,7 +70,7 @@ export const GameHand: React.FC<GameHandProps> = ({
     // Non-overlapping layout (inline row)
     return (
       <div style={{ display: 'flex', gap: '12px' }}>
-        {hand.map((card, index) => (
+        {sortedHand.map((card, index) => (
           <GameCard
             key={index}
             card={card}
