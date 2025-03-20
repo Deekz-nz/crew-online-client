@@ -1,9 +1,9 @@
 import "@mantine/core/styles.css";
-import { MantineProvider, Text, Button, Group, Container, Input, Stack, Divider, Title } from "@mantine/core";
+import { MantineProvider, Text, Button, Group, Container, Input, Stack, Divider, Title, Checkbox, NumberInput } from "@mantine/core";
 import { theme } from "./theme";
 import { useEffect, useState } from "react";
 import * as Colyseus from "colyseus.js";
-import { Card, GameState, Player, Trick } from "./types"; // You'll need to update your types to reflect schema
+import { Card, GameState, Player, SimpleTask, Trick } from "./types"; // You'll need to update your types to reflect schema
 
 export default function App() {
   const [client] = useState(() => new Colyseus.Client("ws://localhost:2567"));
@@ -18,7 +18,17 @@ export default function App() {
   const [gameStage, setGameStage] = useState("");
   const [gameOver, setGameOver] = useState(false);
 
+  const [allTasks, setAllTasks] = useState<SimpleTask[]>([]);
+  const [allTasksClaimed, setAllTasksClaimed] = useState(false);
+  
   const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
+
+  // State for game setup
+  const [includeTasks, setIncludeTasks] = useState(true);
+  const [lastTask, setLastTask] = useState(false);
+  const [plainTasks, setPlainTasks] = useState(1);
+  const [orderedTasks, setOrderedTasks] = useState(0);
+  const [sequencedTasks, setSequencedTasks] = useState(0);
 
   const joinRoom = async () => {
     if (!displayName.trim()) return;
@@ -60,6 +70,14 @@ export default function App() {
         }
         setPlayedCards(trickCards);
 
+        // Update tasks
+        const tasks: SimpleTask[] = Array.from(state.allTasks);
+        setAllTasks(tasks);
+
+        // Show start button if all tasks claimed
+        const unassignedTasks = tasks.filter(task => task.player === "");
+        setAllTasksClaimed(unassignedTasks.length === 0);
+
         // Update current player turn and game stage
         console.log("About to set game stage to: ", state.currentGameStage);
         setCurrentPlayer(state.currentPlayer);
@@ -76,7 +94,17 @@ export default function App() {
   };
 
   const startGame = () => {
-    room?.send("start_game");
+    const gameSetupInstructions = {
+      includeTasks,
+      taskInstructions: {
+        plainTasks,
+        orderedTasks,
+        sequencedTasks,
+        lastTask
+      }
+    };
+  
+    room?.send("start_game", gameSetupInstructions);
   };
 
   const playCard = (card: Card) => {
@@ -87,6 +115,17 @@ export default function App() {
     room?.send("finish_trick");
   };
 
+  const takeTask = (task: SimpleTask) => {
+    room?.send("take_task", task);
+  };
+  
+  const returnTask = (task: SimpleTask) => {
+    room?.send("return_task", task);
+  };
+  
+  const finishTaskAllocation = () => {
+    room?.send("finish_task_allocation");
+  };
   const isMyTurn = room?.sessionId === currentPlayer;
 
   console.log("CURRENT GAME STAGE: ", gameStage);
@@ -123,8 +162,54 @@ export default function App() {
                 </Group>
 
                 {gameStage === "not_started" && (
-                  <Button onClick={startGame}>Start Game</Button>
+                  <Stack mb="sm">
+                    <Text fw={500}>Game Setup:</Text>
+                    <Checkbox
+                      label="Include Tasks"
+                      checked={includeTasks}
+                      onChange={(e) => setIncludeTasks(e.currentTarget.checked)}
+                    />
+                    <Checkbox
+                      label="Include Last Trick Task"
+                      checked={lastTask}
+                      onChange={(e) => setLastTask(e.currentTarget.checked)}
+                      disabled={!includeTasks}
+                    />
+                    <Group grow>
+                    <NumberInput
+                      label="Plain Tasks"
+                      value={plainTasks}
+                      onChange={(val) => setPlainTasks(typeof val === "number" ? val : 0)}
+                      min={0}
+                      max={8}
+                      disabled={!includeTasks}
+                    />
+
+                    <NumberInput
+                      label="Ordered Tasks"
+                      value={orderedTasks}
+                      onChange={(val) => setOrderedTasks(typeof val === "number" ? val : 0)}
+                      min={0}
+                      max={8}
+                      disabled={!includeTasks}
+                    />
+
+                    <NumberInput
+                      label="Sequenced Tasks"
+                      value={sequencedTasks}
+                      onChange={(val) => setSequencedTasks(typeof val === "number" ? val : 0)}
+                      min={0}
+                      max={8}
+                      disabled={!includeTasks}
+                    />
+                    </Group>
+
+                    <Button onClick={startGame} mt="md" color="blue">
+                      Start Game
+                    </Button>
+                  </Stack>
                 )}
+
 
                 <Divider my="sm" />
                 <Text>Game Stage: {gameStage.replaceAll("_", " ")}</Text>
@@ -153,6 +238,47 @@ export default function App() {
                     </Button>
                   ))}
                 </Group>
+                <Divider my="sm" />
+                <Text fw={500}>Tasks:</Text>
+                <Group mb="sm" wrap="wrap">
+                  {allTasks.map((task, index) => {
+                    const taskOwner = players.find(p => p.sessionId === task.player);
+                    const isOwnedByMe = task.player === room?.sessionId;
+                    const isTaskPhase = gameStage === "game_setup";
+
+                    // Build category label
+                    let categoryLabel = task.taskCategory;
+                    if (task.taskCategory === "ordered" || task.taskCategory === "sequence") {
+                      categoryLabel += ` #${task.sequenceIndex}`;
+                    }
+
+                    // Final button label
+                    const playerLabel = taskOwner ? taskOwner.displayName : "Unclaimed";
+                    const statusIcon = task.completed ? "✅" : task.failed ? "❌" : "";
+                    const buttonLabel = `${task.card.color} ${task.card.number} (${playerLabel}) [${categoryLabel}] ${statusIcon}`;
+
+                    return (
+                      <Button
+                        key={index}
+                        onClick={() => {
+                          if (!isTaskPhase) return;
+                          if (!task.player) takeTask(task);
+                          else if (isOwnedByMe) returnTask(task);
+                        }}
+                        disabled={!isTaskPhase}
+                        color={task.card.color}
+                      >
+                        {buttonLabel}
+                      </Button>
+                    );
+                  })}
+                </Group>
+
+                {gameStage === "game_setup" && allTasksClaimed && (
+                  <Button onClick={finishTaskAllocation} color="teal">
+                    Start Playing
+                  </Button>
+                )}
 
                 <Stack mb="sm">
                   {
