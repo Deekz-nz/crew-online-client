@@ -1,11 +1,11 @@
 import "@mantine/core/styles.css";
 import { MantineProvider, Text, Button, Group, Container, Input, Stack, Divider, Title, Checkbox, NumberInput } from "@mantine/core";
 import { theme } from "./theme";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as Colyseus from "colyseus.js";
 import { Card, GameState, Player, SimpleTask, Trick } from "./types"; // You'll need to update your types to reflect schema
-import { GameCard } from "./components/GameCard";
 import { GameHand } from "./components/GameHand";
+import { TaskCard } from "./components/TaskCard";
 
 export default function App() {
   const [client] = useState(() => new Colyseus.Client("ws://localhost:2567"));
@@ -238,38 +238,29 @@ export default function App() {
                 <Divider my="sm" />
                 <Text fw={500}>Tasks:</Text>
                 <Group mb="sm" wrap="wrap">
-                  {allTasks.map((task, index) => {
-                    const taskOwner = players.find(p => p.sessionId === task.player);
-                    const isOwnedByMe = task.player === room?.sessionId;
-                    const isTaskPhase = gameStage === "game_setup";
+                {allTasks.map((task, index) => {
+                  const taskOwner = players.find(p => p.sessionId === task.player);
+                  const isOwnedByMe = task.player === room?.sessionId;
+                  const isTaskPhase = gameStage === "game_setup";
 
-                    // Build category label
-                    let categoryLabel = task.taskCategory;
-                    if (task.taskCategory === "ordered" || task.taskCategory === "sequence") {
-                      categoryLabel += ` #${task.sequenceIndex}`;
-                    }
+                  const handleTaskClick = () => {
+                    if (!isTaskPhase) return;
+                    if (!task.player) takeTask(task);
+                    else if (isOwnedByMe) returnTask(task);
+                  };
 
-                    // Final button label
-                    const playerLabel = taskOwner ? taskOwner.displayName : "Unclaimed";
-                    const statusIcon = task.completed ? "✅" : task.failed ? "❌" : "";
-                    const buttonLabel = `${task.card.color} ${task.card.number} (${playerLabel}) [${categoryLabel}] ${statusIcon}`;
-
-                    return (
-                      <Button
-                        key={index}
-                        onClick={() => {
-                          if (!isTaskPhase) return;
-                          if (!task.player) takeTask(task);
-                          else if (isOwnedByMe) returnTask(task);
-                        }}
-                        disabled={!isTaskPhase}
-                        color={task.card.color}
-                      >
-                        {buttonLabel}
-                      </Button>
-                    );
-                  })}
-                </Group>
+                  return (
+                    <TaskCard
+                      key={index}
+                      task={task}
+                      width={100}
+                      onClick={handleTaskClick}
+                      disabled={!isTaskPhase}
+                      ownerDisplayName={taskOwner ? taskOwner.displayName : 'Unclaimed'} // NEW
+                    />
+                  );
+                })}
+              </Group>
 
                 {gameStage === "game_setup" && allTasksClaimed && (
                   <Button onClick={finishTaskAllocation} color="teal">
