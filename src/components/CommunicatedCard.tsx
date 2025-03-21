@@ -79,11 +79,6 @@ export const CommunicatedCard: React.FC<CommunicatedCardProps> = ({ player, widt
           </div>
         )}
       </div>
-
-      {/* Player Name */}
-      <div style={{ textAlign: 'center', marginTop: 4, fontSize: '0.85rem' }}>
-        {player.displayName}
-      </div>
     </div>
   );
 };

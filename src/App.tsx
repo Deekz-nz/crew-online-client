@@ -1,4 +1,3 @@
-// App.tsx
 import "@mantine/core/styles.css";
 import { MantineProvider, Container } from "@mantine/core";
 import { theme } from "./theme";
@@ -12,17 +11,24 @@ function AppContent() {
   const { room, gameStage } = useGameContext();
   const isJoined = !!room;
 
-  return (
-    <Container>
-      {!isJoined ? (
+  if (!isJoined) {
+    return (
+      <Container>
         <LobbyScreen />
-      ) : gameStage === "not_started" ? (
+      </Container>
+    );
+  }
+
+  if (gameStage === "not_started") {
+    return (
+      <Container>
         <GameSetupScreen />
-      ) : (
-        <GameplayScreen />
-      )}
-    </Container>
-  );
+      </Container>
+    );
+  }
+
+  // Fullscreen layout for gameplay
+  return <GameplayScreen />;
 }
 
 export default function App() {

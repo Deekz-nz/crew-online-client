@@ -6,6 +6,7 @@ import { notifications } from "@mantine/notifications";
 export const useGameRoom = (client: Colyseus.Client) => {
   const [room, setRoom] = useState<Colyseus.Room<GameState> | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [playerOrder, setPlayerOrder] = useState<string[]>([]);
   const [activePlayer, setActivePlayer] = useState<Player | null>(null);
   const [hand, setHand] = useState<Card[]>([]);
   const [playedCards, setPlayedCards] = useState<Card[]>([]);
@@ -35,6 +36,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
           });
         });
         setPlayers(updatedPlayers);
+        setPlayerOrder(Array.from(state.playerOrder));
 
         const player = state.players.get(joinedRoom.sessionId);
         if (player) {
@@ -127,6 +129,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room,
     joinRoom,
     players,
+    playerOrder,
     activePlayer,
     hand,
     playedCards,
