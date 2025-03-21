@@ -89,6 +89,16 @@ export default function TrickPhaseScreen() {
   const handleCommunicateCard = (card: Card) => {
     if (!room) return;
   
+    // 🚫 Block communicating black cards
+    if (card.color === "black") {
+      notifications.show({
+        color: 'red',
+        title: 'Invalid Communication',
+        message: 'You cannot communicate black cards.',
+      });
+      return;
+    }
+  
     const sameColorCards = hand.filter(c => c.color === card.color);
     const sorted = [...sameColorCards].sort((a, b) => a.number - b.number);
   
@@ -110,14 +120,10 @@ export default function TrickPhaseScreen() {
       return;
     }
   
-    const sendCard = {
-      color: card.color,
-      number: card.number,
-    };
-  
-    room.send("communicate", { card: sendCard, cardRank: rank });
+    room.send("communicate", { card: { color: card.color, number: card.number }, cardRank: rank });
     setCommunicateMode(false);
   };
+  
   
 
   const allCardsPlayed = currentTrick.playedCards.length === rotatedOrder.length;
