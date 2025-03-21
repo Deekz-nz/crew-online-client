@@ -1,14 +1,17 @@
-import { Box, Center, Group } from "@mantine/core";
+import { Box, Center, Group, Text } from "@mantine/core";
 import { ReactNode } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerStatus from "../components/PlayerStatus";
 import { TaskCard } from "../components/TaskCard";
 import { GameHand } from "../components/GameHand";
 import { CommunicatedCard } from "../components/CommunicatedCard";
+import { Card } from "../types";
 
 interface PlayerGridLayoutProps {
   gridTemplateAreas: string;
-  children: ReactNode; // phase-specific extras
+  children: ReactNode;
+  isMyTurn?: boolean;
+  onCardClick?: (card: Card) => void;
 }
 
 
@@ -28,7 +31,7 @@ interface PlayerGridLayoutProps {
  *
  * This component ensures consistent layout across game phases and avoids repeated layout logic.
  */
-export default function PlayerGridLayout({ gridTemplateAreas, children }: PlayerGridLayoutProps) {
+export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn, onCardClick }: PlayerGridLayoutProps) {
   const {
     players,
     activePlayer,
@@ -48,7 +51,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children }: Player
   ];
 
   const seatPositionsByCount: Record<number, string[]> = {
-    2: ["left", "right"],
+    2: ["top-left", "top-right"],
     3: ["left", "right", "top-middle"],
     4: ["left", "right", "top-left", "top-right"]
   };
@@ -126,19 +129,25 @@ export default function PlayerGridLayout({ gridTemplateAreas, children }: Player
         style={{
           gridArea: "bottom-hand",
           display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-end",
+          flexDirection: "column",
+          alignItems: "center",
           width: "100%",
         }}
       >
+        {isMyTurn && <Text mb="md" size="md">Your Turn</Text>}
         <GameHand
           hand={hand}
           cardWidth={120}
           overlap
-          disabled
-          onCardClick={() => {}}
+          disabled={!isMyTurn}
+          onCardClick={(card) => {
+            if (isMyTurn && onCardClick) {
+              onCardClick(card);
+            }
+          }}
         />
       </Box>
+
 
       {/* Slot for phase-specific content */}
       {children}

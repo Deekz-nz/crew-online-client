@@ -28,6 +28,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [gameOver, setGameOver] = useState(false);
   const [tasks, setTasks] = useState<SimpleTask[]>([]);
   const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
+  const [currentTrick, setCurrentTrick] = useState<Trick | null>(null);
 
   const joinRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
@@ -74,6 +75,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
         setTasks(taskList);
         setCurrentPlayer(state.currentPlayer);
         setGameStage(state.currentGameStage);
+        setCurrentTrick(state.currentTrick);
         setCompletedTricks(Array.from(state.completedTricks));
         setGameOver(state.currentGameStage === "game_end");
       });
@@ -150,6 +152,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     gameStage,
     gameOver,
     tasks,
+    currentTrick,
     completedTricks,
     isMyTurn,
     startGame,
