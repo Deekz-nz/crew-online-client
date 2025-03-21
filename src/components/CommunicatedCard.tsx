@@ -7,9 +7,10 @@ import { Player } from '../types';
 interface CommunicatedCardProps {
   player: Player;
   width: number;
+  onClick?: () => void;
 }
 
-export const CommunicatedCard: React.FC<CommunicatedCardProps> = ({ player, width }) => {
+export const CommunicatedCard: React.FC<CommunicatedCardProps> = ({ player, width, onClick }) => {
   const cardHeight = width * 1.4;
 
   const tokenSize = width * 0.4;
@@ -34,7 +35,7 @@ export const CommunicatedCard: React.FC<CommunicatedCardProps> = ({ player, widt
   return (
     <div style={{ width, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Card or Outline */}
-      <div style={{ position: 'relative', width, height: cardHeight }}>
+      <div onClick={onClick} style={{ position: 'relative', width, height: cardHeight, cursor: onClick ? "pointer" : "default" }}>
         {showCard ? (
           <>
             <GameCard

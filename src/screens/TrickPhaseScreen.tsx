@@ -3,6 +3,8 @@ import { useGameContext } from "../hooks/GameProvider";
 import PlayerGridLayout from "./PlayerGridLayout";
 import { TRICK_PHASE_GRID } from "./GridTemplates";
 import { GameCard } from "../components/GameCard"; // Assuming GameCard renders a Card
+import { Card, CommunicationRank } from "../types";
+import { notifications } from '@mantine/notifications';
 
 export default function TrickPhaseScreen() {
   const {
@@ -13,7 +15,10 @@ export default function TrickPhaseScreen() {
     playerOrder,
     players,
     sendPlayCard,
-    sendFinishTrick
+    sendFinishTrick,
+    hand,
+    setCommunicateMode,
+    communicateMode
   } = useGameContext();
 
   if (!activePlayer || !room || !playerOrder.length || !currentTrick) return null;
@@ -81,6 +86,38 @@ export default function TrickPhaseScreen() {
   });
   
   
+  const handleCommunicateCard = (card: Card) => {
+    if (!room) return;
+  
+    const sameColorCards = hand.filter(c => c.color === card.color);
+    const sorted = [...sameColorCards].sort((a, b) => a.number - b.number);
+  
+    const isOnly = sameColorCards.length === 1;
+    const isLowest = card.number === sorted[0].number;
+    const isHighest = card.number === sorted[sorted.length - 1].number;
+  
+    let rank: CommunicationRank = "unknown";
+    if (isOnly) rank = "only";
+    else if (isLowest) rank = "lowest";
+    else if (isHighest) rank = "highest";
+  
+    if (rank === "unknown") {
+      notifications.show({
+        color: 'red',
+        title: 'Invalid Communication',
+        message: 'You can only communicate your highest, lowest, or only card of that color.',
+      });
+      return;
+    }
+  
+    const sendCard = {
+      color: card.color,
+      number: card.number,
+    };
+  
+    room.send("communicate", { card: sendCard, cardRank: rank });
+    setCommunicateMode(false);
+  };
   
 
   const allCardsPlayed = currentTrick.playedCards.length === rotatedOrder.length;
@@ -92,6 +129,11 @@ export default function TrickPhaseScreen() {
       isMyTurn={isMyTurn}
       onCardClick={(card) => {
         if (isMyTurn) sendPlayCard(card);
+      }}
+      communicateMode={communicateMode}
+      onCommunicateCardClick={(card) => {
+        // Run communicate logic
+        handleCommunicateCard(card);
       }}
     >
       {/* Only render trick-specific content here */}

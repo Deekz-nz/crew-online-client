@@ -12,6 +12,8 @@ interface PlayerGridLayoutProps {
   children: ReactNode;
   isMyTurn?: boolean;
   onCardClick?: (card: Card) => void;
+  onCommunicateCardClick?: (card: Card) => void;
+  communicateMode?: boolean;
 }
 
 
@@ -31,7 +33,7 @@ interface PlayerGridLayoutProps {
  *
  * This component ensures consistent layout across game phases and avoids repeated layout logic.
  */
-export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn, onCardClick }: PlayerGridLayoutProps) {
+export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn, onCardClick, communicateMode, onCommunicateCardClick }: PlayerGridLayoutProps) {
   const {
     players,
     activePlayer,
@@ -39,7 +41,9 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
     tasks,
     room,
     playerOrder,
-    sendReturnTask
+    sendReturnTask,
+    gameStage,
+    setCommunicateMode
   } = useGameContext();
 
   if (!activePlayer || !room || !playerOrder.length) return null;
@@ -107,7 +111,20 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
 
       {/* Active Player's Communicated Card */}
       <Center style={{ gridArea: "active-comm" }}>
-        <CommunicatedCard player={activePlayer} width={80} />
+      <CommunicatedCard
+        player={activePlayer}
+        width={80}
+        onClick={() => {
+          // Only allow if stage is trick_start or trick_end AND not already communicated
+          const canCommunicate =
+            !activePlayer.hasCommunicated &&
+            (gameStage === "trick_start" || gameStage === "trick_end");
+
+          if (canCommunicate) {
+            setCommunicateMode(prev => !prev);
+          }
+        }}
+      />
       </Center>
 
       {/* Active Player's Tasks */}
@@ -118,7 +135,11 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
               key={idx}
               task={task}
               width={80}
-              onClick={() => sendReturnTask(task)}
+              onClick={
+                gameStage === "game_setup"
+                  ? () => sendReturnTask(task)
+                  : undefined // Disable click outside setup
+              }
             />
           ))}
         </Group>
@@ -131,22 +152,33 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          justifyContent: "flex-end",
           width: "100%",
         }}
       >
-        {isMyTurn && <Text mb="md" size="md">Your Turn</Text>}
+        {communicateMode ? (
+          <Text mb="md" size="md" c="blue" fw={700}>
+            PICK A CARD TO COMMUNICATE
+          </Text>
+        ) : isMyTurn ? (
+          <Text mb="md" size="md">Your Turn</Text>
+        ) : null}
+
         <GameHand
           hand={hand}
           cardWidth={120}
           overlap
-          disabled={!isMyTurn}
+          disabled={!isMyTurn && !communicateMode}
           onCardClick={(card) => {
-            if (isMyTurn && onCardClick) {
+            if (communicateMode && onCommunicateCardClick) {
+              onCommunicateCardClick(card);
+            } else if (isMyTurn && onCardClick) {
               onCardClick(card);
             }
           }}
         />
       </Box>
+
 
 
       {/* Slot for phase-specific content */}

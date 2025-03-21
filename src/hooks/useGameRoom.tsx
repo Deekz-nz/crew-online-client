@@ -29,6 +29,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [tasks, setTasks] = useState<SimpleTask[]>([]);
   const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
   const [currentTrick, setCurrentTrick] = useState<Trick | null>(null);
+  const [communicateMode, setCommunicateMode] = useState(false);
 
   const joinRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
@@ -155,6 +156,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
     currentTrick,
     completedTricks,
     isMyTurn,
+    communicateMode,
+    setCommunicateMode,
     startGame,
     sendPlayCard,
     sendCommunicateCard,

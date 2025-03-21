@@ -1,4 +1,4 @@
-import { Button, Center, Group } from "@mantine/core";
+import { Button, Center, Group, Text } from "@mantine/core";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerGridLayout from "./PlayerGridLayout";
 import { TaskCard } from "../components/TaskCard";
@@ -22,7 +22,8 @@ export default function TaskPhaseScreen() {
     tasks,
     sendTakeTask,
     sendFinishTaskAllocation,
-    activePlayer
+    activePlayer,
+    players
   } = useGameContext();
 
   const unclaimedTasks = tasks.filter(task => task.player === "");
@@ -44,14 +45,20 @@ export default function TaskPhaseScreen() {
         </Group>
       </Center>
 
-      {/* Start Game Button for Host */}
-      {allTasksClaimed && activePlayer?.isHost && (
-        <Center style={{ gridArea: "center" }}>
+    {/* Start Game Button for Host or Waiting for Others */}
+    {allTasksClaimed && (
+      <Center style={{ gridArea: "center" }}>
+        {activePlayer?.isHost ? (
           <Button onClick={sendFinishTaskAllocation}>
             Start Playing
           </Button>
-        </Center>
-      )}
+        ) : (
+          <Text size="lg" fw={700} c="gray">
+            Waiting for {players.find(p => p.isHost)?.displayName}
+          </Text>
+        )}
+      </Center>
+    )}
     </PlayerGridLayout>
   );
 }
