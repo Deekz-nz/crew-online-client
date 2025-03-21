@@ -3,6 +3,19 @@ import * as Colyseus from "colyseus.js";
 import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank } from "../types";
 import { notifications } from "@mantine/notifications";
 
+/**
+ * useGameRoom
+ * -----------
+ * Custom React hook for managing Colyseus WebSocket connection and game state.
+ *
+ * - Connects to Colyseus server and joins/creates the "crew" room.
+ * - Listens to server state changes and updates local React state accordingly.
+ * - Tracks players, hand, tasks, gameStage, playerOrder, and more.
+ * - Provides action functions: sendTakeTask, sendReturnTask, sendPlayCard, sendFinishTaskAllocation.
+ *
+ * All game state logic is centralized here and shared via GameProvider.
+ */
+
 export const useGameRoom = (client: Colyseus.Client) => {
   const [room, setRoom] = useState<Colyseus.Room<GameState> | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);

@@ -4,6 +4,19 @@ import PlayerGridLayout from "./PlayerGridLayout";
 import { TaskCard } from "../components/TaskCard";
 import { TASK_PHASE_GRID } from "./GridTemplates";
 
+/**
+ * TaskPhaseScreen
+ * ---------------
+ * Screen for the task selection phase ("game_setup").
+ *
+ * - Uses PlayerGridLayout for shared layout.
+ * - Displays unclaimed tasks in the center of the grid.
+ * - Allows the active player to claim or return tasks by clicking.
+ * - When all tasks are claimed, shows a "Start Playing" button for the host in the same grid area.
+ *
+ * Transitions to trick play once the host starts the game.
+ */
+
 export default function TaskPhaseScreen() {
   const {
     tasks,

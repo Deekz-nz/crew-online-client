@@ -11,6 +11,23 @@ interface PlayerGridLayoutProps {
   children: ReactNode; // phase-specific extras
 }
 
+
+/**
+ * PlayerGridLayout
+ * ----------------
+ * Shared layout wrapper for gameplay screens using a 5x5 CSS Grid.
+ *
+ * - Handles rendering of all PlayerStatus components around the grid (left, right, top, etc.),
+ *   based on playerOrder and rotating it so the active player is always "bottom."
+ * - Renders active player's hand in the bottom row (grid area: "bottom-hand").
+ * - Renders active player's communicated card and tasks in defined grid areas.
+ *
+ * Props:
+ * - gridTemplateAreas: Defines the layout structure for the current phase (task/trick).
+ * - children: Phase-specific content (e.g., unclaimed tasks, played cards, etc.).
+ *
+ * This component ensures consistent layout across game phases and avoids repeated layout logic.
+ */
 export default function PlayerGridLayout({ gridTemplateAreas, children }: PlayerGridLayoutProps) {
   const {
     players,

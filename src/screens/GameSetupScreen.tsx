@@ -2,6 +2,20 @@ import { Button, Checkbox, Group, NumberInput, Stack, Text, Title } from "@manti
 import { useState } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 
+/**
+ * GameSetupScreen
+ * ----------------
+ * Screen shown after joining a room, before the game starts ("not_started" stage).
+ *
+ * - Displays list of players in the room and indicates who the host is.
+ * - If the user is the host:
+ *     - Shows game setup form to configure number/type of tasks.
+ *     - Displays a "Start Game" button to begin task allocation.
+ * - Non-host players see a "Waiting for host to start the game" message.
+ *
+ * Transitions to TaskPhaseScreen when the game is started.
+ */
+
 export default function GameSetupScreen() {
   const {
     players,
