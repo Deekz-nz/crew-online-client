@@ -27,6 +27,7 @@ export interface Player {
   hasCommunicated: boolean;
   communicationCard: Card | null;
   communicationRank: CommunicationRank;
+  isHost: boolean;
 }
 
 
