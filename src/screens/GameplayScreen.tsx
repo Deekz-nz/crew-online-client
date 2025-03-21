@@ -1,4 +1,4 @@
-import { Box, Center, Group, Stack } from "@mantine/core";
+import { Box, Center, Group } from "@mantine/core";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerStatus from "../components/PlayerStatus";
 import { TaskCard } from "../components/TaskCard";
@@ -12,8 +12,8 @@ export default function GameplayScreen() {
     hand,
     tasks,
     room,
-    gameStage,
     sendTakeTask,
+    sendReturnTask,
     playerOrder // from state
   } = useGameContext();
 
@@ -56,11 +56,11 @@ export default function GameplayScreen() {
         gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
         gridTemplateRows: "1fr 1fr 1fr 1fr 1fr",
         gridTemplateAreas: `
-          ".       top-left top-middle top-right ."
-          ".       .        .         .         ."
-          "left    .        center    .         right"
-          ".       .        active-info .       ."
-          ".       .        bottom-hand .       ."
+          ". top-left top-middle top-right ."
+          ". center center center ."
+          "left center center center right"
+          ". active-comm . active-task ."
+          "bottom-hand bottom-hand bottom-hand bottom-hand bottom-hand"
         `,
       
       }}
@@ -71,15 +71,25 @@ export default function GameplayScreen() {
         const assignedTasks = tasks.filter(t => t.player === player.sessionId);
 
         return (
-          <Center key={player.sessionId} style={{ gridArea }}>
+          <Box
+            key={player.sessionId}
+            style={{
+              gridArea,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",  // align to top
+              alignItems: "center",          // center horizontally
+              height: "100%",                // ensure it fills the cell vertically
+            }}
+          >
             <PlayerStatus
               player={player}
               assignedTasks={assignedTasks}
               communicateWidth={80}
               taskWidth={60}
-              textSize="sm"
+              textSize="lg"
             />
-          </Center>
+          </Box>
         );
       })}
 
@@ -92,23 +102,25 @@ export default function GameplayScreen() {
               task={task}
               width={100}
               onClick={() => sendTakeTask(task)}
-              ownerDisplayName="Unclaimed"
             />
           ))}
         </Group>
       </Center>
 
-      {/* Active Player's Communicated Card & Tasks */}
-      <Center style={{ gridArea: "active-info" }}>
+      {/* Active Player's Communicated Card */}
+      <Center style={{ gridArea: "active-comm" }}>
+        <CommunicatedCard player={activePlayer} width={80} />
+      </Center>
+
+      {/* Active Player's Tasks */}
+      <Center style={{ gridArea: "active-task" }}>
         <Group gap="md">
-          <CommunicatedCard player={activePlayer} width={80} />
           {activePlayerTasks.map((task, idx) => (
             <TaskCard
               key={idx}
               task={task}
-              width={100}
-              disabled
-              ownerDisplayName="You"
+              width={80}
+              onClick={() => sendReturnTask(task)}
             />
           ))}
         </Group>

@@ -40,7 +40,7 @@ export const GameHand: React.FC<GameHandProps> = ({
   
   if (overlap) {
     // Overlapping layout
-    const containerWidth = cardWidth + (hand.length - 1) * (cardWidth * 0.5);
+    const containerWidth = cardWidth + (hand.length - 1) * (cardWidth * 0.6);
     const cardOffset = cardWidth * 0.6; // Change this to make cards overlap more or less
 
     return (
