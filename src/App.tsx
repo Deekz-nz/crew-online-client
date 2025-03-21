@@ -7,6 +7,7 @@ import LobbyScreen from "./screens/LobbyScreen";
 import GameSetupScreen from "./screens/GameSetupScreen";
 import TaskPhaseScreen from "./screens/TaskPhaseScreen";
 import TrickPhaseScreen from "./screens/TrickPhaseScreen";
+import GameOverScreen from "./screens/GameOverScreen";
 
 function AppContent() {
   const { room, gameStage } = useGameContext();
@@ -33,6 +34,10 @@ function AppContent() {
     return <TaskPhaseScreen />;
   }
 
+  if (gameStage === "game_end") {
+    return <GameOverScreen />;
+  }
+  
   return <TrickPhaseScreen />;
 }
 

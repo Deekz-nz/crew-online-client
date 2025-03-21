@@ -62,5 +62,7 @@ export interface GameState {
 
   allTasks: SimpleTask[]; // Colyseus ArraySchema<SimpleTask>
 
+  gameFinished: boolean;
+  gameSucceeded: boolean;
   currentGameStage: GameStage;
 }

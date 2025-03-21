@@ -25,11 +25,12 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [playedCards, setPlayedCards] = useState<Card[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState("");
   const [gameStage, setGameStage] = useState("");
-  const [gameOver, setGameOver] = useState(false);
   const [tasks, setTasks] = useState<SimpleTask[]>([]);
   const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
   const [currentTrick, setCurrentTrick] = useState<Trick | null>(null);
   const [communicateMode, setCommunicateMode] = useState(false);
+  const [gameFinished, setGameFinished] = useState(false);
+  const [gameSucceeded, setGameSucceeded] = useState(false);
 
   const joinRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
@@ -78,7 +79,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
         setGameStage(state.currentGameStage);
         setCurrentTrick(state.currentTrick);
         setCompletedTricks(Array.from(state.completedTricks));
-        setGameOver(state.currentGameStage === "game_end");
+        setGameFinished(state.gameFinished);
+        setGameSucceeded(state.gameSucceeded);
       });
 
     } catch (err) {
@@ -141,6 +143,10 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("finish_task_allocation");
   };
 
+  const sendRestartGame = () => {
+    room?.send("restart_game");
+  };
+
   return {
     room,
     joinRoom,
@@ -151,12 +157,13 @@ export const useGameRoom = (client: Colyseus.Client) => {
     playedCards,
     currentPlayer,
     gameStage,
-    gameOver,
     tasks,
     currentTrick,
     completedTricks,
     isMyTurn,
     communicateMode,
+    gameFinished,
+    gameSucceeded,
     setCommunicateMode,
     startGame,
     sendPlayCard,
@@ -164,6 +171,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendFinishTrick,
     sendTakeTask,
     sendReturnTask,
-    sendFinishTaskAllocation
+    sendFinishTaskAllocation,
+    sendRestartGame
   };
 };
