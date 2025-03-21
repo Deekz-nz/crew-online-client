@@ -5,7 +5,8 @@ import { Notifications } from '@mantine/notifications';
 import { GameProvider, useGameContext } from "./hooks/GameProvider";
 import LobbyScreen from "./screens/LobbyScreen";
 import GameSetupScreen from "./screens/GameSetupScreen";
-import GameplayScreen from "./screens/GameplayScreen";
+import TaskPhaseScreen from "./screens/TaskPhaseScreen";
+import TrickPhaseScreen from "./screens/TrickPhaseScreen";
 
 function AppContent() {
   const { room, gameStage } = useGameContext();
@@ -27,8 +28,12 @@ function AppContent() {
     );
   }
 
-  // Fullscreen layout for gameplay
-  return <GameplayScreen />;
+  // Gameplay Phases
+  if (gameStage === "game_setup") {
+    return <TaskPhaseScreen />;
+  }
+
+  return <TrickPhaseScreen />;
 }
 
 export default function App() {
