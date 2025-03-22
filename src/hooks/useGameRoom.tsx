@@ -35,7 +35,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const joinRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
     try {
-      const joinedRoom = await client.joinOrCreate<GameState>("crew", { displayName });
+      const token = import.meta.env.VITE_SHARED_SECRET
+      const joinedRoom = await client.joinOrCreate<GameState>("crew", { displayName, token });
       setRoom(joinedRoom);
 
       joinedRoom.onStateChange((state: GameState) => {
