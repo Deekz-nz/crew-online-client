@@ -37,6 +37,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
   const {
     players,
     activePlayer,
+    commanderPlayer,
     hand,
     tasks,
     room,
@@ -104,6 +105,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
               communicateWidth={80}
               taskWidth={60}
               textSize="lg"
+              isCommander={commanderPlayer === player.sessionId}
             />
           </Box>
         );

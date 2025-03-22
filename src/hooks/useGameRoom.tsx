@@ -31,6 +31,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [communicateMode, setCommunicateMode] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
   const [gameSucceeded, setGameSucceeded] = useState(false);
+  const [commanderPlayer, setCommanderPlayer] = useState("");
 
   const joinRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
@@ -77,6 +78,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
         const taskList: SimpleTask[] = Array.from(state.allTasks);
         setTasks(taskList);
         setCurrentPlayer(state.currentPlayer);
+        setCommanderPlayer(state.commanderPlayer);
         setGameStage(state.currentGameStage);
         setCurrentTrick(state.currentTrick);
         setCompletedTricks(Array.from(state.completedTricks));
@@ -157,6 +159,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     hand,
     playedCards,
     currentPlayer,
+    commanderPlayer,
     gameStage,
     tasks,
     currentTrick,

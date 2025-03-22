@@ -9,6 +9,7 @@ interface PlayerStatusProps {
   communicateWidth: number;
   taskWidth: number;
   textSize: "xs" | "sm" | "md" | "lg" | "xl";
+  isCommander?: boolean;
 }
 
 export default function PlayerStatus({
@@ -16,7 +17,8 @@ export default function PlayerStatus({
   assignedTasks,
   communicateWidth,
   taskWidth,
-  textSize
+  textSize,
+  isCommander
 }: PlayerStatusProps) {
   return (
     <Stack align="center" gap="xs">
@@ -24,7 +26,7 @@ export default function PlayerStatus({
       <CommunicatedCard player={player} width={communicateWidth} />
 
       {/* Display Name */}
-      <Text size={textSize}>{player.displayName}</Text>
+      <Text size={textSize}>{player.displayName}{isCommander && " (C)"}</Text>
 
       {/* Tasks */}
       <Group align="center" gap={4}>

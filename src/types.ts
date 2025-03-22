@@ -56,6 +56,7 @@ export interface GameState {
   players: MapSchema<Player>;           // Colyseus MapSchema
   playerOrder: ArraySchema<string>;     // Colyseus ArraySchema
   currentPlayer: string;
+  commanderPlayer: string;
 
   currentTrick: Trick;
   completedTricks: ArraySchema<Trick>;  // Colyseus ArraySchema
