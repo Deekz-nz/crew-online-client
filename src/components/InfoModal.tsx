@@ -40,7 +40,13 @@ export function InfoModal({ opened, onClose }: InfoModalProps) {
 
         <Text fw={600}>Last Trick:</Text>
         {lastTrick ? (
-          <GameHand hand={lastTrick.playedCards} overlap cardWidth={80} />
+          <Stack>
+            <GameHand hand={lastTrick.playedCards} overlap cardWidth={80} />
+            <Text>
+              Won by:{' '}
+              {players.find(p => p.sessionId === lastTrick.trickWinner)?.displayName ?? 'Unknown'}
+            </Text>
+          </Stack>
         ) : (
           <Text>No tricks completed yet.</Text>
         )}
