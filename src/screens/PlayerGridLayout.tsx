@@ -104,7 +104,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
               assignedTasks={assignedTasks}
               communicateWidth={80}
               taskWidth={60}
-              textSize="lg"
+              textSize="xl"
               isCommander={commanderPlayer === player.sessionId}
             />
           </Box>
