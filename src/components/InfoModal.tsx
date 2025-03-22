@@ -1,0 +1,50 @@
+import { Modal, Stack, Text, Divider } from '@mantine/core';
+import { useGameContext } from '../hooks/GameProvider';
+import { GameHand } from './GameHand';
+
+interface InfoModalProps {
+  opened: boolean;
+  onClose: () => void;
+}
+
+export function InfoModal({ opened, onClose }: InfoModalProps) {
+  const { completedTricks, players, expectedTrickCount } = useGameContext();
+
+  const tricksRemaining = expectedTrickCount - completedTricks.length;
+
+  const playerWinsMap: Record<string, number> = {};
+  completedTricks.forEach(trick => {
+    const winnerId = trick.trickWinner;
+    playerWinsMap[winnerId] = (playerWinsMap[winnerId] || 0) + 1;
+  });
+
+  const lastTrick = completedTricks.length > 0 ? completedTricks[completedTricks.length - 1] : null;
+
+  return (
+    <Modal opened={opened} onClose={onClose} title="Game Info" centered>
+      <Stack gap="sm">
+        <Text fw={600}>Tricks Remaining: {tricksRemaining}</Text>
+
+        <Divider />
+
+        <Text fw={600}>Tricks Won:</Text>
+        <Stack pl="md">
+          {players.map(player => (
+            <Text key={player.sessionId}>
+              {player.displayName}: {playerWinsMap[player.sessionId] || 0}
+            </Text>
+          ))}
+        </Stack>
+
+        <Divider />
+
+        <Text fw={600}>Last Trick:</Text>
+        {lastTrick ? (
+          <GameHand hand={lastTrick.playedCards} overlap cardWidth={80} />
+        ) : (
+          <Text>No tricks completed yet.</Text>
+        )}
+      </Stack>
+    </Modal>
+  );
+}

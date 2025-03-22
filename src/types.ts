@@ -60,6 +60,8 @@ export interface GameState {
 
   currentTrick: Trick;
   completedTricks: ArraySchema<Trick>;  // Colyseus ArraySchema
+  expectedTrickCount: number;
+
 
   allTasks: SimpleTask[]; // Colyseus ArraySchema<SimpleTask>
 

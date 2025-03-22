@@ -28,6 +28,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [tasks, setTasks] = useState<SimpleTask[]>([]);
   const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
   const [currentTrick, setCurrentTrick] = useState<Trick | null>(null);
+  const [expectedTrickCount, setExpectedTrickCount] = useState<number>(0);
   const [communicateMode, setCommunicateMode] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
   const [gameSucceeded, setGameSucceeded] = useState(false);
@@ -82,6 +83,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
         setGameStage(state.currentGameStage);
         setCurrentTrick(state.currentTrick);
         setCompletedTricks(Array.from(state.completedTricks));
+        setExpectedTrickCount(state.expectedTrickCount);
         setGameFinished(state.gameFinished);
         setGameSucceeded(state.gameSucceeded);
       });
@@ -164,6 +166,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     tasks,
     currentTrick,
     completedTricks,
+    expectedTrickCount,
     isMyTurn,
     communicateMode,
     gameFinished,

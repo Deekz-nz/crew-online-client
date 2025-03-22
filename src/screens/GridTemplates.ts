@@ -23,7 +23,7 @@ export const TASK_PHASE_GRID = `
 
 
 export const TRICK_PHASE_GRID = `
-  ". top-left top-middle top-right last-trick"
+  ". top-left top-middle top-right info-button"
   ". top-left-card top-middle-card top-right-card ."
   "left left-card center right-card right"
   ". active-comm active-card active-task ."
