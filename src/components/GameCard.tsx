@@ -17,14 +17,13 @@ interface GameCardProps {
   isTask?: boolean;
   showHoverAnimation?: boolean; 
   faded?: boolean;
-
 }
 
 const colorStyles = {
-  yellow: { background: '#FFEB3B', dark: '#FBC02D' },
-  green: { background: '#4CAF50', dark: '#388E3C' },
-  pink: { background: '#EC407A', dark: '#D81B60' },
-  blue: { background: '#42A5F5', dark: '#1976D2' },
+  yellow: { background: '#FFEB3B', dark: '#F57F17' },
+  green: { background: '#4CAF50', dark: '#2E7D32' }, 
+  pink:  { background: '#EC407A', dark: '#AD1457' },
+  blue:  { background: '#42A5F5', dark: '#0D47A1' },
   black: { background: '#212121', dark: '#616161' },
 };
 
@@ -41,7 +40,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
   const { color, number } = card;
   const { background, dark } = colorStyles[color];
   const IconComponent = iconMap[color];
-  const height = size * (isTask ? 1.2 : 1.4); // Aspect ratio 5:7 for cards, 5:6 for tasks
+  const height = size * (isTask ? 1.1 : 1.4); // Aspect ratio 5:7 for cards, 5:6 for tasks
   const isBlack = color === 'black';
   const numberStyle: React.CSSProperties = {
     fontWeight: 'bold',
