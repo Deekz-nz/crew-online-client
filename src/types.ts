@@ -50,6 +50,8 @@ export interface SimpleTask {
 }
 
 export interface GameState {
+  roomId: string;
+
   gameHost: string;
   gameStarted: boolean;
 

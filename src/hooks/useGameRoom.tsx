@@ -34,63 +34,87 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [gameSucceeded, setGameSucceeded] = useState(false);
   const [commanderPlayer, setCommanderPlayer] = useState("");
 
-  const joinRoom = async (displayName: string) => {
+  const createRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
+    const roomCode = generateRoomCode();
     try {
-      const token = import.meta.env.VITE_SHARED_SECRET
-      const joinedRoom = await client.joinOrCreate<GameState>("crew", { displayName, token });
+      const token = import.meta.env.VITE_SHARED_SECRET;
+      const createdRoom = await client.create<GameState>("crew", { displayName, token, roomCode });
+      setRoom(createdRoom);
+      localStorage.setItem("roomId", createdRoom.roomId);
+      localStorage.setItem("sessionId", createdRoom.sessionId);
+      setupRoomListeners(createdRoom);
+    } catch (err) {
+      console.error("Failed to create room:", err);
+    }
+  };
+
+  const joinRoom = async (displayName: string, roomCode: string) => {
+    if (!displayName.trim() || !roomCode.trim()) return;
+    try {
+      const token = import.meta.env.VITE_SHARED_SECRET;
+      const joinedRoom = await client.joinById<GameState>(roomCode, { displayName, token });
       setRoom(joinedRoom);
-
-      joinedRoom.onStateChange((state: GameState) => {
-        const updatedPlayers: Player[] = [];
-        state.players.forEach((player: any) => {
-          updatedPlayers.push({
-            sessionId: player.sessionId,
-            displayName: player.displayName,
-            hand: [],
-            hasCommunicated: player.hasCommunicated,
-            communicationCard: player.communicationCard,
-            communicationRank: player.communicationRank,
-            isHost: player.isHost
-          });
-        });
-        setPlayers(updatedPlayers);
-        setPlayerOrder(Array.from(state.playerOrder));
-
-        const player = state.players.get(joinedRoom.sessionId);
-        if (player) {
-          const cards: Card[] = Array.from(player.hand).map((card: any) => ({
-            color: card.color,
-            number: card.number,
-          }));
-          setHand(cards);
-          setActivePlayer({
-            sessionId: player.sessionId,
-            displayName: player.displayName,
-            hand: cards,
-            hasCommunicated: player.hasCommunicated,
-            communicationCard: player.communicationCard,
-            communicationRank: player.communicationRank,
-            isHost: player.isHost
-          });
-        }
-
-        setPlayedCards(Array.from(state.currentTrick?.playedCards || []));
-        const taskList: SimpleTask[] = Array.from(state.allTasks);
-        setTasks(taskList);
-        setCurrentPlayer(state.currentPlayer);
-        setCommanderPlayer(state.commanderPlayer);
-        setGameStage(state.currentGameStage);
-        setCurrentTrick(state.currentTrick);
-        setCompletedTricks(Array.from(state.completedTricks));
-        setExpectedTrickCount(state.expectedTrickCount);
-        setGameFinished(state.gameFinished);
-        setGameSucceeded(state.gameSucceeded);
-      });
-
+      localStorage.setItem("roomId", joinedRoom.roomId);
+      localStorage.setItem("sessionId", joinedRoom.sessionId);
+      setupRoomListeners(joinedRoom);
     } catch (err) {
       console.error("Failed to join room:", err);
     }
+  };
+
+  const setupRoomListeners = (joinedRoom: Colyseus.Room<GameState>) => {
+    joinedRoom.onStateChange((state: GameState) => {
+      const updatedPlayers: Player[] = [];
+      state.players.forEach((player: any) => {
+        updatedPlayers.push({
+          sessionId: player.sessionId,
+          displayName: player.displayName,
+          hand: [],
+          hasCommunicated: player.hasCommunicated,
+          communicationCard: player.communicationCard,
+          communicationRank: player.communicationRank,
+          isHost: player.isHost
+        });
+      });
+      setPlayers(updatedPlayers);
+      setPlayerOrder(Array.from(state.playerOrder));
+  
+      const player = state.players.get(joinedRoom.sessionId);
+      if (player) {
+        const cards: Card[] = Array.from(player.hand).map((card: any) => ({
+          color: card.color,
+          number: card.number,
+        }));
+        setHand(cards);
+        setActivePlayer({
+          sessionId: player.sessionId,
+          displayName: player.displayName,
+          hand: cards,
+          hasCommunicated: player.hasCommunicated,
+          communicationCard: player.communicationCard,
+          communicationRank: player.communicationRank,
+          isHost: player.isHost
+        });
+      }
+  
+      setPlayedCards(Array.from(state.currentTrick?.playedCards || []));
+      const taskList: SimpleTask[] = Array.from(state.allTasks);
+      setTasks(taskList);
+      setCurrentPlayer(state.currentPlayer);
+      setCommanderPlayer(state.commanderPlayer);
+      setGameStage(state.currentGameStage);
+      setCurrentTrick(state.currentTrick);
+      setCompletedTricks(Array.from(state.completedTricks));
+      setExpectedTrickCount(state.expectedTrickCount);
+      setGameFinished(state.gameFinished);
+      setGameSucceeded(state.gameSucceeded);
+    });
+  
+    joinedRoom.onMessage("room_closed", (message) => {
+      console.log("Room closed due to:", message.reason);
+      // Show notification or redirect
+    });
   };
 
   const isMyTurn = room?.sessionId === currentPlayer;
@@ -155,6 +179,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   return {
     room,
     joinRoom,
+    createRoom,
     players,
     playerOrder,
     activePlayer,
@@ -181,4 +206,14 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendFinishTaskAllocation,
     sendRestartGame
   };
+};
+
+// Utility to generate 6-letter code
+const generateRoomCode = () => {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += letters[Math.floor(Math.random() * letters.length)];
+  }
+  return code;
 };

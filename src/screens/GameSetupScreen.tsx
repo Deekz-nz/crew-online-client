@@ -1,4 +1,4 @@
-import { Button, Checkbox, Group, NumberInput, Stack, Text, Title } from "@mantine/core";
+import { Button, Checkbox, CopyButton, Group, NumberInput, Stack, Text, Title } from "@mantine/core";
 import { useState } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 
@@ -31,6 +31,7 @@ export default function GameSetupScreen() {
   const [sequencedTasks, setSequencedTasks] = useState(0);
 
   const isHost = activePlayer?.isHost;
+  const roomUrl = `${window.location.origin}/${room?.roomId || ""}`;
 
   const handleStartGame = () => {
     startGame({
@@ -56,6 +57,26 @@ export default function GameSetupScreen() {
         ))}
       </Stack>
 
+      {room && (
+        <Stack>
+          <Text fw={500}>Room Code:</Text>
+          <Group align="center">
+            <Text size="xl" fw={700} style={{ letterSpacing: "0.1em" }}>
+              {room.roomId}
+            </Text>
+            <CopyButton value={roomUrl} timeout={2000}>
+              {({ copied, copy }) => (
+                <Button size="sm" onClick={copy}>
+                  {copied ? "Copied" : "Copy Link"}
+                </Button>
+              )}
+            </CopyButton>
+          </Group>
+          <Text size="sm" c="dimmed">
+            Share this code with your friends so they can join.
+          </Text>
+        </Stack>
+      )}
       {isHost ? (
         <>
           <Text fw={500} mt="md">Task Settings:</Text>
