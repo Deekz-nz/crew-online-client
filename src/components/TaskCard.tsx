@@ -89,7 +89,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           backgroundColor: background,
           border: '2px solid white',
           borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(255, 255, 255, 0.6)',
+          boxShadow: '0 2px 8px rgba(255, 255, 255, 0.3)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
