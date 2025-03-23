@@ -74,7 +74,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
           hasCommunicated: player.hasCommunicated,
           communicationCard: player.communicationCard,
           communicationRank: player.communicationRank,
-          isHost: player.isHost
+          isHost: player.isHost,
+          isConnected: player.isConnected,
         });
       });
       setPlayers(updatedPlayers);
@@ -94,7 +95,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
           hasCommunicated: player.hasCommunicated,
           communicationCard: player.communicationCard,
           communicationRank: player.communicationRank,
-          isHost: player.isHost
+          isHost: player.isHost,
+          isConnected: player.isConnected,
         });
       }
   

@@ -1,7 +1,6 @@
 import { Button, Group, Input, Stack, Title } from "@mantine/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGameContext } from "../hooks/GameProvider";
-import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 /**
@@ -19,23 +18,16 @@ import { useLocation } from "react-router-dom";
 export default function LobbyScreen() {
   const { joinRoom, createRoom } = useGameContext();
   const location = useLocation();
-  
+
   const [displayName, setDisplayName] = useState(() => {
     return localStorage.getItem("displayName") || "";
   });
-  
   const [roomCode, setRoomCode] = useState("");
 
   useEffect(() => {
     const pathCode = location.pathname.slice(1).toUpperCase();
     if (pathCode && pathCode.length === 6 && /^[A-Z]+$/.test(pathCode)) {
-      setRoomCode(pathCode);
-  
-      const savedName = localStorage.getItem("displayName");
-      if (savedName) {
-        // Auto-join room
-        joinRoom(savedName, pathCode);
-      }
+      setRoomCode(pathCode); // ✅ Pre-fill only, no join
     }
   }, [location.pathname]);
 
