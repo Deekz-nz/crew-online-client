@@ -1,8 +1,16 @@
 import React from 'react';
-import { GameCard } from './GameCard';
 import { IconOmega, IconCheck, IconX } from '@tabler/icons-react';
 import { SimpleTask } from '../types';
 import { Avatar } from '@mantine/core';
+
+// Reuse the colorStyles from GameCard
+const colorStyles = {
+  yellow: { background: '#FFEB3B', dark: '#F57F17' },
+  green: { background: '#4CAF50', dark: '#2E7D32' },
+  pink:  { background: '#EC407A', dark: '#AD1457' },
+  blue:  { background: '#42A5F5', dark: '#0D47A1' },
+  black: { background: '#212121', dark: '#616161' },
+};
 
 interface TaskCardProps {
   task: SimpleTask;
@@ -12,28 +20,48 @@ interface TaskCardProps {
   ownerDisplayName?: string;
 }
 
+export const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  width,
+  onClick,
+  disabled,
+  ownerDisplayName,
+}) => {
+  const { card, taskCategory, sequenceIndex, completed, failed } = task;
+  const { color, number } = card;
+  const { background, dark } = colorStyles[color];
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, width, onClick, disabled, ownerDisplayName }) => {
-  const { taskCategory, sequenceIndex, completed, failed } = task;
+  const tokenHeight = width * 0.3; // circle token size
+  const tokenGap = 4;
+  const cardHeight = width * 1.1;
+  const wrapperHeight = tokenHeight + tokenGap + cardHeight;
+  const isBlack = color === 'black';
 
+  // Token content at top
   let circleContent: React.ReactNode = null;
-  if (taskCategory === "ordered") {
+  if (taskCategory === 'ordered') {
     circleContent = <span style={{ fontWeight: 'bold' }}>{sequenceIndex}</span>;
-  } else if (taskCategory === "sequence") {
+  } else if (taskCategory === 'sequence') {
     const chevrons = Array(sequenceIndex).fill('›').join('');
     circleContent = <span style={{ fontWeight: 'bold' }}>{chevrons}</span>;
-  } else if (taskCategory === "must_be_last") {
+  } else if (taskCategory === 'must_be_last') {
     circleContent = <IconOmega size={width * 0.2} stroke={2} />;
   }
 
-  const tokenHeight = width * 0.3;     // space for circle token
-  const tokenGap = 4;                  // gap between token and card
-  const cardHeight = width * 1.4;      // standard GameCard height
-  const wrapperHeight = tokenHeight + tokenGap + cardHeight;
+  const isInteractive = onClick && !disabled;
 
   return (
-    <div style={{ position: 'relative', width, height: wrapperHeight, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Token Circle (positioned at top) */}
+    <div
+      style={{
+        position: 'relative',
+        width,
+        height: wrapperHeight,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      {/* Token Circle */}
       <div
         style={{
           width: tokenHeight,
@@ -52,21 +80,40 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, width, onClick, disabl
       >
         {circleContent}
       </div>
-  
-      {/* GameCard */}
-      <div style={{ position: 'relative' }}>
-        <GameCard
-          card={task.card}
-          size={width}
-          shadow
-          isTask
-          showHoverAnimation={false}
-          onClick={onClick}
-          disabled={disabled}
-          faded={completed || failed}
-        />
-  
-        {/* Overlay Icon */}
+
+      {/* Refactored Task Card Face */}
+      <div
+        style={{
+          width,
+          height: cardHeight,
+          backgroundColor: background,
+          border: '2px solid white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(255, 255, 255, 0.6)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          cursor: isInteractive ? 'pointer' : 'default',
+          opacity: completed || failed ? 0.5 : 1,
+          transition: 'transform 0.15s ease, filter 0.15s ease',
+          flexDirection: 'column', // Stack number and icon vertically
+        }}
+        onClick={isInteractive ? onClick : undefined}
+      >
+        {/* Big Center Number */}
+        <span
+          style={{
+            fontWeight: 'bold',
+            fontSize: width * 0.5,
+            color: isBlack ? 'white' : dark,
+            textShadow: isBlack ? '0 0 4px white' : 'none',
+            zIndex: 1, // Ensure it's above the icon
+          }}
+        >
+          {(number === 6 || number === 9) ? `${number}.` : `${number}`}
+        </span>
+        {/* Completed / Failed Overlay */}
         {(completed || failed) && (
           <div
             style={{
@@ -88,11 +135,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, width, onClick, disabl
               </Avatar>
             )}
           </div>
-
         )}
       </div>
-  
-      {/* Owner Name */}
+
+      {/* Owner Display Name */}
       {ownerDisplayName && (
         <div style={{ textAlign: 'center', marginTop: 4, fontSize: '0.85rem' }}>
           {ownerDisplayName}
@@ -100,5 +146,4 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, width, onClick, disabl
       )}
     </div>
   );
-  
 };

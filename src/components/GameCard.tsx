@@ -13,8 +13,7 @@ interface GameCardProps {
   size?: number; // base width in px, e.g., 100
   shadow?: boolean;
   onClick?: () => void;
-  disabled?: boolean; 
-  isTask?: boolean;
+  disabled?: boolean;
   showHoverAnimation?: boolean; 
   faded?: boolean;
 }
@@ -36,11 +35,11 @@ const iconMap = {
   black: IconRocket,
 };
 
-export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = true, onClick, disabled, isTask, showHoverAnimation, faded }) => {
+export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = true, onClick, disabled, showHoverAnimation, faded }) => {
   const { color, number } = card;
   const { background, dark } = colorStyles[color];
   const IconComponent = iconMap[color];
-  const height = size * (isTask ? 1.1 : 1.4); // Aspect ratio 5:7 for cards, 5:6 for tasks
+  const height = size *  1.4; // Aspect ratio 5:7 for cards
   const isBlack = color === 'black';
   const numberStyle: React.CSSProperties = {
     fontWeight: 'bold',
@@ -68,7 +67,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
     opacity: faded ? 0.5 : 1,
   };
   
-  const shiftUp = size * (isTask ? 1.2 : 1.4) * 0.25; // 25% of height
+  const shiftUp = size * 1.4 * 0.25; // 25% of height
   const cardHoverStyle: React.CSSProperties = {
     transform: `scale(1.03) translateY(-${shiftUp}px)`,
     filter: 'brightness(1.05)',
