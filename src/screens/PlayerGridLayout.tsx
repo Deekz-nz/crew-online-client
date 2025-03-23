@@ -55,6 +55,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
     ...playerOrder.slice(0, activeIndex)
   ];
 
+  // NOTE: ALSO CHANGE THIS IN TRICKPHASESCREEN.TSX
   const seatPositionsByCount: Record<number, string[]> = {
     2: ["top-left", "top-right"],
     3: ["left", "top-middle", "right"],
