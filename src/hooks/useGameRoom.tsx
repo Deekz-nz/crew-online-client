@@ -42,7 +42,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
       const createdRoom = await client.create<GameState>("crew", { displayName, token, roomCode });
       setRoom(createdRoom);
       localStorage.setItem("roomId", createdRoom.roomId);
-      localStorage.setItem("sessionId", createdRoom.sessionId);
+      localStorage.setItem("reconnectionToken", createdRoom.reconnectionToken);
       setupRoomListeners(createdRoom);
     } catch (err) {
       console.error("Failed to create room:", err);
@@ -51,17 +51,43 @@ export const useGameRoom = (client: Colyseus.Client) => {
 
   const joinRoom = async (displayName: string, roomCode: string) => {
     if (!displayName.trim() || !roomCode.trim()) return;
+  
+    const sharedToken = import.meta.env.VITE_SHARED_SECRET;
+    const savedRoomId = localStorage.getItem("roomId");
+    const reconnectionToken = localStorage.getItem("reconnectionToken");
+  
+    // ✅ Attempt reconnect if same room and reconnectionToken exists
+    if (roomCode === savedRoomId && reconnectionToken) {
+      try {
+        const rejoinedRoom = await client.reconnect(reconnectionToken) as Colyseus.Room<GameState>;
+        setRoom(rejoinedRoom);
+        setupRoomListeners(rejoinedRoom);
+
+        // 🔥 SAVE the new reconnectionToken!
+        localStorage.setItem("reconnectionToken", rejoinedRoom.reconnectionToken);
+        console.log("Reconnected successfully to room:", roomCode);
+        return; // ✅ Exit early, no need to join again
+      } catch (err) {
+        console.warn("Reconnect failed, falling back to join:", err);
+        // Clear stale token
+        localStorage.removeItem("reconnectionToken");
+        localStorage.removeItem("roomId");
+      }
+    }
+  
+    // 🔄 Regular join fallback
     try {
-      const token = import.meta.env.VITE_SHARED_SECRET;
-      const joinedRoom = await client.joinById<GameState>(roomCode, { displayName, token });
+      const joinedRoom = await client.joinById<GameState>(roomCode, { displayName, token: sharedToken });
       setRoom(joinedRoom);
       localStorage.setItem("roomId", joinedRoom.roomId);
-      localStorage.setItem("sessionId", joinedRoom.sessionId);
+      localStorage.setItem("reconnectionToken", joinedRoom.reconnectionToken);
       setupRoomListeners(joinedRoom);
+      console.log("Joined room:", roomCode);
     } catch (err) {
       console.error("Failed to join room:", err);
     }
   };
+  
 
   const setupRoomListeners = (joinedRoom: Colyseus.Room<GameState>) => {
     joinedRoom.onStateChange((state: GameState) => {
