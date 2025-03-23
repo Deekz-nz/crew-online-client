@@ -1,4 +1,4 @@
-import { Modal, Stack, Text, Divider } from '@mantine/core';
+import { Modal, Stack, Text, Divider, Button } from '@mantine/core';
 import { useGameContext } from '../hooks/GameProvider';
 import { GameHand } from './GameHand';
 
@@ -8,7 +8,7 @@ interface InfoModalProps {
 }
 
 export function InfoModal({ opened, onClose }: InfoModalProps) {
-  const { completedTricks, players, expectedTrickCount } = useGameContext();
+  const { completedTricks, players, expectedTrickCount, activePlayer, sendRestartGame } = useGameContext();
 
   const tricksRemaining = expectedTrickCount - completedTricks.length;
 
@@ -18,6 +18,7 @@ export function InfoModal({ opened, onClose }: InfoModalProps) {
     playerWinsMap[winnerId] = (playerWinsMap[winnerId] || 0) + 1;
   });
 
+  const isHost = activePlayer?.isHost;
   const lastTrick = completedTricks.length > 0 ? completedTricks[completedTricks.length - 1] : null;
 
   return (
@@ -50,6 +51,11 @@ export function InfoModal({ opened, onClose }: InfoModalProps) {
         ) : (
           <Text>No tricks completed yet.</Text>
         )}
+        {isHost &&
+          <Button onClick={sendRestartGame} color="teal">
+            Restart Game
+          </Button>
+        }
       </Stack>
     </Modal>
   );
