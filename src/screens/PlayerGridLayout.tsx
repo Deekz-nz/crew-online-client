@@ -57,8 +57,8 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
 
   const seatPositionsByCount: Record<number, string[]> = {
     2: ["top-left", "top-right"],
-    3: ["left", "right", "top-middle"],
-    4: ["left", "right", "top-left", "top-right"]
+    3: ["left", "top-middle", "right"],
+    4: ["left", "top-left", "top-right", "right"]
   };
 
   const nonActivePlayers = rotatedOrder.slice(1);
