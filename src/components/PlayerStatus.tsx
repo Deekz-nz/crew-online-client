@@ -26,7 +26,11 @@ export default function PlayerStatus({
       <CommunicatedCard player={player} width={communicateWidth} />
 
       {/* Display Name */}
-      <Text size={textSize} fw={700}>{player.displayName}{isCommander && " (C)"}</Text>
+      <Text size={textSize} fw={700} ta="center">
+        {player.displayName}
+        {isCommander && " (C)"}
+        {!player.isConnected && " (Disconnected)"}
+      </Text>
 
       {/* Tasks */}
       <Group align="center" gap={4}>
