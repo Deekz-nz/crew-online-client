@@ -1,19 +1,7 @@
-import { Button, Group, Input, Stack, Title } from "@mantine/core";
+import { Button, Divider, Group, Stack, TextInput, Title } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 import { useLocation } from "react-router-dom";
-
-/**
- * LobbyScreen
- * -----------
- * First screen shown before joining a game.
- *
- * - Allows player to enter a display name.
- * - Calls joinRoom() from GameProvider when the "Join Room" button is clicked.
- *
- * Placeholder for future enhancements:
- * - Room list, game settings, or room creation.
- */
 
 export default function LobbyScreen() {
   const { joinRoom, createRoom } = useGameContext();
@@ -27,37 +15,55 @@ export default function LobbyScreen() {
   useEffect(() => {
     const pathCode = location.pathname.slice(1).toUpperCase();
     if (pathCode && pathCode.length === 6 && /^[A-Z]+$/.test(pathCode)) {
-      setRoomCode(pathCode); // ✅ Pre-fill only, no join
+      setRoomCode(pathCode); // ✅ Pre-fill only
     }
   }, [location.pathname]);
 
+  const handleJoin = () => {
+    if (displayName.trim()) {
+      localStorage.setItem("displayName", displayName);
+      joinRoom(displayName, roomCode);
+    }
+  };
+
+  const handleCreate = () => {
+    if (displayName.trim()) {
+      localStorage.setItem("displayName", displayName);
+      createRoom(displayName);
+    }
+  };
+
+  // Same width for both rows
+  const inputGroupWidth = 380;
+
   return (
-    <Stack>
-      <Title order={2}>Join The Crew</Title>
-      <Input
+    <Stack align="center" gap="lg" mt="xl">
+      <Title order={1}>Join The Crew</Title>
+
+      <TextInput
         placeholder="Enter your display name"
         value={displayName}
         onChange={(e) => setDisplayName(e.currentTarget.value)}
+        size="lg"
+        w={inputGroupWidth}
+        label="Display name"
       />
 
-      <Group grow>
-        <Button onClick={() => createRoom(displayName)}>Create Room</Button>
-        <Input
+      <Group gap="sm" align="flex-end" w={inputGroupWidth}>
+        <TextInput
           placeholder="Enter room code"
           value={roomCode}
           onChange={(e) => setRoomCode(e.currentTarget.value.toUpperCase())}
+          size="lg"
+          flex="1"
+          label="Room code"
         />
-        <Button
-          onClick={() => {
-            if (displayName.trim()) {
-              localStorage.setItem("displayName", displayName);
-              joinRoom(displayName, roomCode);
-            }
-          }}
-        >
-          Join Room
-        </Button>
+        <Button size="lg" onClick={handleJoin}>Join</Button>
       </Group>
+
+      <Divider label="or" labelPosition="center" w={inputGroupWidth} />
+
+      <Button size="lg" color="blue" onClick={handleCreate}>Create New Room</Button>
     </Stack>
   );
 }
