@@ -1,5 +1,5 @@
 import { Button, Checkbox, CopyButton, Group, NumberInput, Stack, Text, Title } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 
 /**
@@ -16,33 +16,82 @@ import { useGameContext } from "../hooks/GameProvider";
  * Transitions to TaskPhaseScreen when the game is started.
  */
 
-export default function GameSetupScreen() {
-  const {
-    players,
-    room,
-    startGame,
-    activePlayer
-  } = useGameContext();
+// Local storage key
+const LOCAL_STORAGE_KEY = "gameTaskSettings";
 
-  const [includeTasks, setIncludeTasks] = useState(true);
-  const [lastTask, setLastTask] = useState(false);
-  const [plainTasks, setPlainTasks] = useState(1);
-  const [orderedTasks, setOrderedTasks] = useState(0);
-  const [sequencedTasks, setSequencedTasks] = useState(0);
+// Default task settings
+const defaultTaskSettings = {
+  includeTasks: true,
+  lastTask: false,
+  plainTasks: 1,
+  orderedTasks: 0,
+  sequencedTasks: 0,
+};
+
+export default function GameSetupScreen() {
+  const { players, room, startGame, activePlayer } = useGameContext();
+
+  const [includeTasks, setIncludeTasks] = useState(defaultTaskSettings.includeTasks);
+  const [lastTask, setLastTask] = useState(defaultTaskSettings.lastTask);
+  const [plainTasks, setPlainTasks] = useState(defaultTaskSettings.plainTasks);
+  const [orderedTasks, setOrderedTasks] = useState(defaultTaskSettings.orderedTasks);
+  const [sequencedTasks, setSequencedTasks] = useState(defaultTaskSettings.sequencedTasks);
 
   const isHost = activePlayer?.isHost;
   const roomUrl = `${window.location.origin}/${room?.roomId || ""}`;
 
+  // Load from local storage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (typeof parsed === "object") {
+          setIncludeTasks(parsed.includeTasks ?? defaultTaskSettings.includeTasks);
+          setLastTask(parsed.lastTask ?? defaultTaskSettings.lastTask);
+          setPlainTasks(parsed.plainTasks ?? defaultTaskSettings.plainTasks);
+          setOrderedTasks(parsed.orderedTasks ?? defaultTaskSettings.orderedTasks);
+          setSequencedTasks(parsed.sequencedTasks ?? defaultTaskSettings.sequencedTasks);
+        }
+      } catch (e) {
+        console.warn("Failed to parse task settings from local storage", e);
+      }
+    }
+  }, []);
+
+  // Save settings to local storage
+  const saveToLocalStorage = () => {
+    const settings = {
+      includeTasks,
+      lastTask,
+      plainTasks,
+      orderedTasks,
+      sequencedTasks,
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+  };
+
+  // Handle game start
   const handleStartGame = () => {
+    saveToLocalStorage();
     startGame({
       includeTasks,
       taskInstructions: {
         plainTasks,
         orderedTasks,
         sequencedTasks,
-        lastTask
-      }
+        lastTask,
+      },
     });
+  };
+
+  // Reset settings to defaults
+  const handleResetDefaults = () => {
+    setIncludeTasks(defaultTaskSettings.includeTasks);
+    setLastTask(defaultTaskSettings.lastTask);
+    setPlainTasks(defaultTaskSettings.plainTasks);
+    setOrderedTasks(defaultTaskSettings.orderedTasks);
+    setSequencedTasks(defaultTaskSettings.sequencedTasks);
   };
 
   return (
@@ -77,6 +126,7 @@ export default function GameSetupScreen() {
           </Text>
         </Stack>
       )}
+
       {isHost ? (
         <>
           <Text fw={500} mt="md">Task Settings:</Text>
@@ -117,7 +167,15 @@ export default function GameSetupScreen() {
               disabled={!includeTasks}
             />
           </Group>
-          <Button onClick={handleStartGame} mt="md" color="blue">Start Game</Button>
+
+          <Group mt="sm">
+            <Button variant="default" onClick={handleResetDefaults}>
+              Reset to Default
+            </Button>
+            <Button onClick={handleStartGame} color="blue">
+              Start Game
+            </Button>
+          </Group>
         </>
       ) : (
         <Text mt="md" c="dimmed">Waiting for the host to start the game...</Text>
