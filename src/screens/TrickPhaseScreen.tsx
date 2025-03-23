@@ -1,13 +1,10 @@
-import { ActionIcon, Button, Center, Text, Tooltip } from "@mantine/core";
+import { Button, Center, Text } from "@mantine/core";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerGridLayout from "./PlayerGridLayout";
 import { TRICK_PHASE_GRID } from "./GridTemplates";
 import { GameCard } from "../components/GameCard"; // Assuming GameCard renders a Card
 import { Card, CommunicationRank } from "../types";
 import { notifications } from '@mantine/notifications';
-import { useDisclosure } from "@mantine/hooks";
-import { IconInfoCircle } from "@tabler/icons-react";
-import { InfoModal } from "../components/InfoModal";
 
 export default function TrickPhaseScreen() {
   const {
@@ -24,7 +21,6 @@ export default function TrickPhaseScreen() {
     communicateMode
   } = useGameContext();
 
-  const [infoOpened, { open: openInfo, close: closeInfo }] = useDisclosure(false);
   
   if (!activePlayer || !room || !playerOrder.length || !currentTrick) return null;
 
@@ -167,16 +163,6 @@ export default function TrickPhaseScreen() {
           )}
         </Center>
       )}
-
-      {/* Info Button */}
-      <div style={{ gridArea: 'info-button', justifySelf: 'end', padding: '8px' }}>
-        <Tooltip label="Game Info" withArrow>
-          <ActionIcon variant="outline" onClick={openInfo} size={56} >
-            <IconInfoCircle size={36} />
-          </ActionIcon>
-        </Tooltip>
-      </div>
-      <InfoModal opened={infoOpened} onClose={closeInfo} />
 
 
 

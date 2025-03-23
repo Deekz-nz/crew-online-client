@@ -1,4 +1,4 @@
-import { Box, Center, Group, Text } from "@mantine/core";
+import { ActionIcon, Box, Center, Group, Text, Tooltip } from "@mantine/core";
 import { ReactNode } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerStatus from "../components/PlayerStatus";
@@ -6,6 +6,9 @@ import { TaskCard } from "../components/TaskCard";
 import { GameHand } from "../components/GameHand";
 import { CommunicatedCard } from "../components/CommunicatedCard";
 import { Card } from "../types";
+import { IconInfoCircle } from "@tabler/icons-react";
+import { InfoModal } from "../components/InfoModal";
+import { useDisclosure } from "@mantine/hooks";
 
 interface PlayerGridLayoutProps {
   gridTemplateAreas: string;
@@ -47,6 +50,8 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
     setCommunicateMode
   } = useGameContext();
 
+  const [infoOpened, { open: openInfo, close: closeInfo }] = useDisclosure(false);
+  
   if (!activePlayer || !room || !playerOrder.length) return null;
 
   const activeIndex = playerOrder.findIndex(id => id === activePlayer.sessionId);
@@ -184,6 +189,16 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
 
 
 
+
+      {/* Info Button */}
+      <div style={{ gridArea: 'info-button', justifySelf: 'end', padding: '8px' }}>
+        <Tooltip label="Game Info" withArrow>
+          <ActionIcon variant="outline" onClick={openInfo} size={56} >
+            <IconInfoCircle size={36} />
+          </ActionIcon>
+        </Tooltip>
+      </div>
+      <InfoModal opened={infoOpened} onClose={closeInfo} />
       {/* Slot for phase-specific content */}
       {children}
     </Box>

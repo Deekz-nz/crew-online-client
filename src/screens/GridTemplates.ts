@@ -14,7 +14,7 @@
 
 
 export const TASK_PHASE_GRID = `
-  ". top-left top-middle top-right ."
+  ". top-left top-middle top-right info-button"
   ". center center center ."
   "left center center center right"
   ". active-comm . active-task ."
