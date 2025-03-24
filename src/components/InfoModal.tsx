@@ -8,7 +8,7 @@ interface InfoModalProps {
 }
 
 export function InfoModal({ opened, onClose }: InfoModalProps) {
-  const { completedTricks, players, expectedTrickCount, activePlayer, sendRestartGame } = useGameContext();
+  const { completedTricks, players, expectedTrickCount, activePlayer, sendRestartGame, sendGiveUp } = useGameContext();
 
   const tricksRemaining = expectedTrickCount - completedTricks.length;
 
@@ -52,9 +52,14 @@ export function InfoModal({ opened, onClose }: InfoModalProps) {
           <Text>No tricks completed yet.</Text>
         )}
         {isHost &&
-          <Button onClick={sendRestartGame} color="teal">
-            Restart Game
-          </Button>
+          <>
+            <Button onClick={sendGiveUp} color="red">
+              Give up
+            </Button>
+            <Button onClick={sendRestartGame} color="teal">
+              Restart Game
+            </Button>
+          </>
         }
       </Stack>
     </Modal>

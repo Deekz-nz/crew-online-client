@@ -204,6 +204,10 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("restart_game");
   };
 
+  const sendGiveUp = () => {
+    room?.send("give_up");
+  }
+
   return {
     room,
     joinRoom,
@@ -232,7 +236,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendTakeTask,
     sendReturnTask,
     sendFinishTaskAllocation,
-    sendRestartGame
+    sendRestartGame,
+    sendGiveUp
   };
 };
 
