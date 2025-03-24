@@ -1,8 +1,11 @@
-import { Button, Center, Stack, Text } from "@mantine/core";
+import { Box, Button, Center, Grid, Stack, Text, Title } from "@mantine/core";
 import { useGameContext } from "../hooks/GameProvider";
 import Confetti from 'react-confetti';
 import { useViewportSize } from '@mantine/hooks';
 import { motion } from 'framer-motion';
+import { useState } from "react";
+import { PlayerRecap } from "../components/PlayerRecap";
+import { TaskCard } from "../components/TaskCard";
 
 export default function GameOverScreen() {
   const {
@@ -10,9 +13,11 @@ export default function GameOverScreen() {
     players,
     gameFinished,
     sendRestartGame,
-    gameSucceeded
+    gameSucceeded,
+    playerHistoryStats
   } = useGameContext();
 
+  const [showRecap, setShowRecap] = useState(false);
   const { width, height } = useViewportSize();
 
   if (!gameFinished || !activePlayer) return null;
@@ -22,12 +27,21 @@ export default function GameOverScreen() {
   const resultEmoji = gameSucceeded ? "🎉" : "💥";
   const resultText = gameSucceeded ? "Mission Successful!" : "Mission Failed";
 
+  const toggleRecap = () => {
+    setShowRecap(!showRecap);
+  };
+
+  // Get player display names mapping from session IDs
+  const playerDisplayNames: Record<string, string> = {};
+  players.forEach(player => {
+    playerDisplayNames[player.sessionId] = player.displayName;
+  });
 
   return (
-    <Center w="100vw" h="100vh">
+    <Center w="100vw" h="100vh" style={{ padding: "20px", overflowY: "auto" }}>
       {gameSucceeded && <Confetti width={width} height={height} numberOfPieces={600} recycle={false} />}
 
-      <Stack align="center" gap="md">
+      <Stack align="center" gap="md" style={{ width: "100%", maxWidth: "1000px" }}>
         {gameSucceeded ? (
           <motion.div
             animate={{ scale: [1, 1.1, 1] }}
@@ -59,14 +73,63 @@ export default function GameOverScreen() {
           </motion.div>
         )}
 
-        {isHost ? (
-          <Button onClick={sendRestartGame} color="teal" size="lg" mt="lg">
-            Restart Game
-          </Button>
-        ) : (
+        <Box mt="lg" mb="lg" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {isHost && (
+            <Button onClick={sendRestartGame} color="teal" size="lg">
+              Restart Game
+            </Button>
+          )}
+          
+          {playerHistoryStats && (
+            <Button onClick={toggleRecap} color="blue" size="lg">
+              {showRecap ? "Hide Game Recap" : "Show Game Recap"}
+            </Button>
+          )}
+        </Box>
+
+        {!isHost && !showRecap && (
           <Text size="md" c="gray">
             Waiting for {hostPlayer?.displayName} to restart...
           </Text>
+        )}
+
+        {showRecap && playerHistoryStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ width: "100%" }}
+          >
+            <Title order={2} mb="lg" ta="center">Game Recap</Title>
+
+            {/* Tasks Row */}
+            <Box mb="xl">
+              <Text fw={600} mb="xs">Allocated Tasks</Text>
+              <Box style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                {Object.entries(playerHistoryStats).flatMap(([playerId, history]) =>
+                  history.tasks.map((task, index) => (
+                    <Box key={`${playerId}-${index}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <TaskCard task={task} width={60} disabled />
+                      <Text size="xs" mt="xs" c="gray.6">
+                        {playerDisplayNames[playerId] || `Player ${playerId}`}
+                      </Text>
+                    </Box>
+                  ))
+                )}
+              </Box>
+            </Box>
+            {/* Player hands */}
+            <Stack gap="md">
+              {Object.entries(playerHistoryStats).map(([playerId, history]) => (
+                <PlayerRecap
+                  key={playerId}
+                  playerName={playerDisplayNames[playerId] || `Player ${playerId}`}
+                  hand={history.cards}
+                  tasks={[]} // Tasks already shown above
+                />
+              ))}
+            </Stack>
+          </motion.div>
         )}
       </Stack>
     </Center>

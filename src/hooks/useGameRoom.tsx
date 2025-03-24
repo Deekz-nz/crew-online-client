@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as Colyseus from "colyseus.js";
-import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank } from "../types";
+import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank, FrontendHistoryStats } from "../types";
 import { notifications } from "@mantine/notifications";
 
 /**
@@ -33,6 +33,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [gameFinished, setGameFinished] = useState(false);
   const [gameSucceeded, setGameSucceeded] = useState(false);
   const [commanderPlayer, setCommanderPlayer] = useState("");
+  const [playerHistoryStats, setPlayerHistoryStats] = useState<FrontendHistoryStats>({});
 
   const createRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
@@ -88,7 +89,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     }
   };
   
-
+  // The main method responsible for syncing the backend state to the frontend
   const setupRoomListeners = (joinedRoom: Colyseus.Room<GameState>) => {
     joinedRoom.onStateChange((state: GameState) => {
       const updatedPlayers: Player[] = [];
@@ -137,6 +138,17 @@ export const useGameRoom = (client: Colyseus.Client) => {
       setExpectedTrickCount(state.expectedTrickCount);
       setGameFinished(state.gameFinished);
       setGameSucceeded(state.gameSucceeded);
+
+      const historyStats: Record<string, { cards: Card[]; tasks: SimpleTask[] }> = {};
+      state.historyPlayerStats.forEach((history, playerId) => {
+        historyStats[playerId] = {
+          cards: Array.from(history.cards),
+          tasks: Array.from(history.tasks),
+        };
+      });
+      
+      setPlayerHistoryStats(historyStats); // Update this to your `useState` setter
+      
     });
   
     joinedRoom.onMessage("room_closed", (message) => {
@@ -228,6 +240,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     communicateMode,
     gameFinished,
     gameSucceeded,
+    playerHistoryStats,
     setCommunicateMode,
     startGame,
     sendPlayCard,

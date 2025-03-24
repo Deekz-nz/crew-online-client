@@ -50,6 +50,17 @@ export interface SimpleTask {
   completedAtTrickIndex?: number;
 }
 
+export interface ColyseusPlayerHistory {
+  cards: ArraySchema<Card>;
+  tasks: ArraySchema<SimpleTask>;
+}
+
+export interface FrontendPlayerHistory {
+  cards: Card[];
+  tasks: SimpleTask[];
+}
+export type FrontendHistoryStats = Record<string, FrontendPlayerHistory>;
+
 export interface GameState {
   roomId: string;
 
@@ -71,4 +82,6 @@ export interface GameState {
   gameFinished: boolean;
   gameSucceeded: boolean;
   currentGameStage: GameStage;
+
+  historyPlayerStats: MapSchema<ColyseusPlayerHistory>;
 }
