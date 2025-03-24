@@ -10,6 +10,7 @@ interface GameHandProps {
   onCardClick?: (card: Card, index: number) => void;
   colorOrder?: CardColor[];
   lowToHigh?: boolean; 
+  disableShadow?: boolean;
 }
 
 export const GameHand: React.FC<GameHandProps> = ({
@@ -20,6 +21,7 @@ export const GameHand: React.FC<GameHandProps> = ({
   onCardClick,
   colorOrder,
   lowToHigh,
+  disableShadow
 }) => {
   const defaultColorOrder: CardColor[] = ["black", "pink", "blue", "yellow", "green"];
   const colorPriority = (colorOrder ?? defaultColorOrder).reduce<Record<CardColor, number>>(
@@ -57,7 +59,7 @@ export const GameHand: React.FC<GameHandProps> = ({
             <GameCard
               card={card}
               size={cardWidth}
-              shadow
+              shadow={disableShadow ? false : true}
               showHoverAnimation
               disabled={disabled}
               onClick={() => onCardClick?.(card, index)}
@@ -75,7 +77,7 @@ export const GameHand: React.FC<GameHandProps> = ({
             key={index}
             card={card}
             size={cardWidth}
-            shadow
+            shadow={disableShadow ? false : true}
             showHoverAnimation
             disabled={disabled}
             onClick={() => onCardClick?.(card, index)}

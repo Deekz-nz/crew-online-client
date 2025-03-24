@@ -1,4 +1,4 @@
-import { Box, Button, Center, Grid, Stack, Text, Title } from "@mantine/core";
+import { Box, Button, Center, Stack, Text, Title } from "@mantine/core";
 import { useGameContext } from "../hooks/GameProvider";
 import Confetti from 'react-confetti';
 import { useViewportSize } from '@mantine/hooks';
@@ -93,44 +93,46 @@ export default function GameOverScreen() {
           </Text>
         )}
 
-        {showRecap && playerHistoryStats && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ width: "100%" }}
-          >
-            <Title order={2} mb="lg" ta="center">Game Recap</Title>
+      {/* Recap Section */}
+      {showRecap && playerHistoryStats && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ width: "100%" }}
+        >
+          <Title order={2} mb="lg" ta="center">Allocated Tasks</Title>
 
-            {/* Tasks Row */}
-            <Box mb="xl">
-              <Text fw={600} mb="xs">Allocated Tasks</Text>
-              <Box style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-                {Object.entries(playerHistoryStats).flatMap(([playerId, history]) =>
-                  history.tasks.map((task, index) => (
-                    <Box key={`${playerId}-${index}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <TaskCard task={task} width={60} disabled />
-                      <Text size="xs" mt="xs" c="gray.6">
-                        {playerDisplayNames[playerId] || `Player ${playerId}`}
-                      </Text>
-                    </Box>
-                  ))
-                )}
-              </Box>
+          {/* Tasks Row */}
+          <Box mb="xl">
+            <Box style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {Object.entries(playerHistoryStats).flatMap(([playerId, history]) =>
+                history.tasks.map((task, index) => (
+                  <Box key={`${playerId}-${index}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <TaskCard task={task} width={60} disabled />
+                    <Text size="xs" mt="xs" c="gray.6">
+                      {playerDisplayNames[playerId] || `Player ${playerId}`}
+                    </Text>
+                  </Box>
+                ))
+              )}
             </Box>
-            {/* Player hands */}
-            <Stack gap="md">
-              {Object.entries(playerHistoryStats).map(([playerId, history]) => (
-                <PlayerRecap
-                  key={playerId}
-                  playerName={playerDisplayNames[playerId] || `Player ${playerId}`}
-                  hand={history.cards}
-                  tasks={[]} // Tasks already shown above
-                />
-              ))}
-            </Stack>
-          </motion.div>
-        )}
+          </Box>
+
+          <Title order={2} mb="md" ta="center">Starting Hands</Title>
+
+          {/* Hands Recap - stacked vertically */}
+          <Stack gap="sm" align="center">
+            {Object.entries(playerHistoryStats).map(([playerId, history]) => (
+              <PlayerRecap
+                key={playerId}
+                playerName={playerDisplayNames[playerId] || `Player ${playerId}`}
+                hand={history.cards}
+              />
+            ))}
+          </Stack>
+        </motion.div>
+      )}
       </Stack>
     </Center>
   );
