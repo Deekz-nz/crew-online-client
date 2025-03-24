@@ -101,27 +101,33 @@ export default function GameOverScreen() {
           transition={{ duration: 0.5 }}
           style={{ width: "100%" }}
         >
+          {/* Tasks Row */}
           <Title order={2} mb="lg" ta="center">Allocated Tasks</Title>
 
-          {/* Tasks Row */}
           <Box mb="xl">
-            <Box style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-              {Object.entries(playerHistoryStats).flatMap(([playerId, history]) =>
-                history.tasks.map((task, index) => (
-                  <Box key={`${playerId}-${index}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <TaskCard task={task} width={60} disabled />
-                    <Text size="xs" mt="xs" c="gray.6">
+            <Box style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center' }}>
+              {Object.entries(playerHistoryStats).map(([playerId, history]) => (
+                history.tasks.length > 0 && (
+                  <Box key={playerId} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    {/* Task Cards for this player */}
+                    <Box style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {history.tasks.map((task, index) => (
+                        <TaskCard key={`${playerId}-${index}`} task={task} width={60} disabled />
+                      ))}
+                    </Box>
+                    {/* Player Name for group */}
+                    <Text size="md" fw={600} mt="sm" c="gray.7" ta="center">
                       {playerDisplayNames[playerId] || `Player ${playerId}`}
                     </Text>
                   </Box>
-                ))
-              )}
+                )
+              ))}
             </Box>
           </Box>
 
+          {/* Hands Recap - stacked vertically */}
           <Title order={2} mb="md" ta="center">Starting Hands</Title>
 
-          {/* Hands Recap - stacked vertically */}
           <Stack gap="sm" align="center">
             {Object.entries(playerHistoryStats).map(([playerId, history]) => (
               <PlayerRecap
