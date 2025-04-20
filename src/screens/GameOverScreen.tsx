@@ -29,7 +29,8 @@ export default function GameOverScreen() {
   const resultText = gameSucceeded ? "Mission Successful!" : "Mission Failed";
 
   const toggleRecap = () => setShowRecap(!showRecap);
-  const inspirationalQuote = getInspirationalQuote();
+  const [inspirationalQuote] = useState(() => getInspirationalQuote());
+
 
   const playerDisplayNames: Record<string, string> = {};
   players.forEach(player => {
@@ -40,8 +41,36 @@ export default function GameOverScreen() {
     <motion.div
       initial={gameSucceeded ? {} : { x: 0 }}
       animate={gameSucceeded ? {} : { x: [-10, 10, -6, 6, -3, 3, 0] }}
-      transition={gameSucceeded ? {} : { duration: 0.6 }}
+      transition={
+        gameSucceeded
+          ? {}
+          : {
+              duration: 0.4,
+              repeat: 5,       // Shake 5 times
+              repeatType: "loop",
+            }
+      }
+      style={{ position: "relative" }}
     >
+      {!gameSucceeded && (
+        <motion.div
+          initial={{ opacity: 0.9 }}
+          animate={{
+            backgroundColor: ["#ff0000", "#ff6600", "#ffff00", "#ff0000"],
+            opacity: [0.9, 0.4, 0.7, 0],
+          }}
+          transition={{ duration: 1.2 }}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
+      )}
       <Center w="100vw" h="100vh" style={{ padding: "20px", overflowY: "auto" }}>
         {gameSucceeded && <Confetti width={width} height={height} numberOfPieces={600} recycle={false} />}
 
