@@ -72,6 +72,8 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
   const nonActivePlayers = rotatedOrder.slice(1);
   const seatMap = seatPositionsByCount[nonActivePlayers.length] || [];
 
+  const someoneCommunicating = players.some(p => p.intendsToCommunicate);
+
   const otherPlayers = nonActivePlayers.map((sessionId, idx) => {
     const player = players.find(p => p.sessionId === sessionId);
     if (!player || !seatMap[idx]) return null;
@@ -131,7 +133,15 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
             (gameStage === "trick_start" || gameStage === "trick_end");
 
           if (canCommunicate) {
-            setCommunicateMode(prev => !prev);
+            setCommunicateMode(prev => {
+              const next = !prev;
+              if (next) {
+                room.send("intend_communication");
+              } else {
+                room.send("cancel_intention");
+              }
+              return next;
+            });
           }
         }}
       />
@@ -170,7 +180,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
           <Text mb="md" size="md" c="blue" fw={700}>
             PICK A CARD TO COMMUNICATE
           </Text>
-        ) : isMyTurn ? (
+        ) : isMyTurn && !someoneCommunicating ? (
           <Text mb="md" size="md">Your Turn</Text>
         ) : null}
 
@@ -178,7 +188,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
           hand={hand}
           cardWidth={120}
           overlap
-          disabled={!isMyTurn && !communicateMode}
+          disabled={(!isMyTurn || someoneCommunicating) && !communicateMode}
           onCardClick={(card) => {
             if (communicateMode && onCommunicateCardClick) {
               onCommunicateCardClick(card);
