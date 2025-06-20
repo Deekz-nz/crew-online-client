@@ -6,7 +6,7 @@ import { TaskCard } from "../components/TaskCard";
 import { GameHand } from "../components/GameHand";
 import { CommunicatedCard } from "../components/CommunicatedCard";
 import { Card } from "../types";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { IconInfoCircle, IconArrowBackUp } from "@tabler/icons-react";
 import { InfoModal } from "../components/InfoModal";
 import { useDisclosure } from "@mantine/hooks";
 
@@ -17,6 +17,8 @@ interface PlayerGridLayoutProps {
   onCardClick?: (card: Card) => void;
   onCommunicateCardClick?: (card: Card) => void;
   communicateMode?: boolean;
+  onUndo?: () => void;
+  canUndo?: boolean;
 }
 
 
@@ -36,7 +38,7 @@ interface PlayerGridLayoutProps {
  *
  * This component ensures consistent layout across game phases and avoids repeated layout logic.
  */
-export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn, onCardClick, communicateMode, onCommunicateCardClick }: PlayerGridLayoutProps) {
+export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn, onCardClick, communicateMode, onCommunicateCardClick, onUndo, canUndo }: PlayerGridLayoutProps) {
   const {
     players,
     activePlayer,
@@ -190,13 +192,22 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
 
 
 
-      {/* Info Button */}
+      {/* Undo & Info Buttons */}
       <div style={{ gridArea: 'info-button', justifySelf: 'end', padding: '8px' }}>
-        <Tooltip label="Game Info" withArrow>
-          <ActionIcon variant="outline" onClick={openInfo} size={56} >
-            <IconInfoCircle size={36} />
-          </ActionIcon>
-        </Tooltip>
+        <Group gap="xs">
+          {canUndo && onUndo && (
+            <Tooltip label="Undo Card" withArrow>
+              <ActionIcon variant="outline" onClick={onUndo} size={56}>
+                <IconArrowBackUp size={36} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+          <Tooltip label="Game Info" withArrow>
+            <ActionIcon variant="outline" onClick={openInfo} size={56} >
+              <IconInfoCircle size={36} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
       </div>
       <InfoModal opened={infoOpened} onClose={closeInfo} />
       {/* Slot for phase-specific content */}

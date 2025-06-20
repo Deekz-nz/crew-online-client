@@ -175,6 +175,10 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("play_card", card);
   };
 
+  const sendUndoCard = () => {
+    room?.send("undo_card");
+  };
+
   const sendCommunicateCard = (card: Card) => {
     const sameColor = hand.filter(c => c.color === card.color);
     const sorted = [...sameColor].sort((a, b) => a.number - b.number);
@@ -244,6 +248,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     setCommunicateMode,
     startGame,
     sendPlayCard,
+    sendUndoCard,
     sendCommunicateCard,
     sendFinishTrick,
     sendTakeTask,
