@@ -15,10 +15,12 @@ export default function TrickPhaseScreen() {
     playerOrder,
     players,
     sendPlayCard,
+    sendUndoCard,
     sendFinishTrick,
     hand,
     setCommunicateMode,
-    communicateMode
+    communicateMode,
+    gameStage
   } = useGameContext();
 
   
@@ -129,6 +131,8 @@ export default function TrickPhaseScreen() {
   
 
   const allCardsPlayed = currentTrick.playedCards.length === rotatedOrder.length;
+  const lastPlayer = currentTrick.playerOrder[currentTrick.playerOrder.length - 1];
+  const canUndo = gameStage === "trick_middle" && lastPlayer === activePlayer.sessionId;
   const isTrickWinner = currentTrick.trickWinner === activePlayer.sessionId;
 
   return (
@@ -143,6 +147,8 @@ export default function TrickPhaseScreen() {
         // Run communicate logic
         handleCommunicateCard(card);
       }}
+      onUndo={sendUndoCard}
+      canUndo={canUndo}
     >
       {/* Only render trick-specific content here */}
 
