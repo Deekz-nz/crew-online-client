@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useState } from "react";
 import { PlayerRecap } from "../components/PlayerRecap";
 import { TaskCard } from "../components/TaskCard";
-import { getInspirationalQuote } from "../utils/quotes";
+import { getInspirationalQuote, getSuccessQuote } from "../utils/quotes";
 
 export default function GameOverScreen() {
   const {
@@ -30,6 +30,7 @@ export default function GameOverScreen() {
 
   const toggleRecap = () => setShowRecap(!showRecap);
   const [inspirationalQuote] = useState(() => getInspirationalQuote());
+  const [successQuote] = useState(() => getSuccessQuote());
 
 
   const playerDisplayNames: Record<string, string> = {};
@@ -88,7 +89,7 @@ export default function GameOverScreen() {
                 {resultEmoji} {resultText} {resultEmoji}
               </Text>
               <Text size="xl" fw={600} mt="sm" c="gray.7" ta="center">
-                Great work, crew!
+                {successQuote}
               </Text>
             </motion.div>
           ) : (
