@@ -25,6 +25,7 @@ export interface Player {
   displayName: string;
   hand: Card[];
   hasCommunicated: boolean;
+  intendsToCommunicate: boolean;
   communicationCard: Card | null;
   communicationRank: CommunicationRank;
   isHost: boolean;

@@ -53,6 +53,8 @@ export default function TrickPhaseScreen() {
   const nonActivePlayers = rotatedOrder.slice(1);
   const seatMap = seatPositionsByCount[nonActivePlayers.length] || [];
 
+  const someoneCommunicating = players.some(p => p.intendsToCommunicate);
+
   const playedCardElements = rotatedOrder.map((playerId, idx) => {
     // Get seat/grid area for this player
     let gridArea = "active-card";
@@ -67,13 +69,23 @@ export default function TrickPhaseScreen() {
     const playedIndex = currentTrick.playerOrder.indexOf(playerId);
     const hasPlayed = playedIndex !== -1;
     const card = hasPlayed ? currentTrick.playedCards[playedIndex] : null;
-  
+
     const isThisPlayerTurn = currentPlayer === playerId;
-  
+    const player = players.find(p => p.sessionId === playerId);
+    const isCommunicating = player?.intendsToCommunicate;
+
     if (card) {
       return (
         <Center key={`card-${playerId}`} style={{ gridArea }}>
           <GameCard card={card} size={100} />
+        </Center>
+      );
+    } else if (isCommunicating) {
+      return (
+        <Center key={`communicating-${playerId}`} style={{ gridArea }}>
+          <Text size="lg" fw={700} c="blue">
+            Communicating...
+          </Text>
         </Center>
       );
     } else if (isThisPlayerTurn) {
@@ -125,6 +137,7 @@ export default function TrickPhaseScreen() {
     }
   
     room.send("communicate", { card: { color: card.color, number: card.number }, cardRank: rank });
+    room.send("cancel_intention");
     setCommunicateMode(false);
   };
   
@@ -140,7 +153,7 @@ export default function TrickPhaseScreen() {
       gridTemplateAreas={TRICK_PHASE_GRID}
       isMyTurn={isMyTurn}
       onCardClick={(card) => {
-        if (isMyTurn) sendPlayCard(card);
+        if (isMyTurn && !someoneCommunicating) sendPlayCard(card);
       }}
       communicateMode={communicateMode}
       onCommunicateCardClick={(card) => {
