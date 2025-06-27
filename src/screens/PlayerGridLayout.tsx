@@ -6,6 +6,7 @@ import { TaskCard } from "../components/TaskCard";
 import { GameHand } from "../components/GameHand";
 import { CommunicatedCard } from "../components/CommunicatedCard";
 import { Card } from "../types";
+import { CardStack, Direction } from "../components/CardStack";
 import { IconInfoCircle, IconArrowBackUp } from "@tabler/icons-react";
 import { InfoModal } from "../components/InfoModal";
 import { useDisclosure } from "@mantine/hooks";
@@ -49,7 +50,8 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
     playerOrder,
     sendReturnTask,
     gameStage,
-    setCommunicateMode
+    setCommunicateMode,
+    currentTrick
   } = useGameContext();
 
   const [infoOpened, { open: openInfo, close: closeInfo }] = useDisclosure(false);
@@ -62,7 +64,6 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
     ...playerOrder.slice(0, activeIndex)
   ];
 
-  // NOTE: ALSO CHANGE THIS IN TRICKPHASESCREEN.TSX
   const seatPositionsByCount: Record<number, string[]> = {
     2: ["top-left", "top-right"],
     3: ["left", "top-middle", "right"],
@@ -81,6 +82,26 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
   }).filter(Boolean) as { player: typeof players[number], gridArea: string }[];
 
   const activePlayerTasks = tasks.filter(t => t.player === activePlayer.sessionId);
+
+  const playedCardsMap: Partial<Record<Direction, Card>> = {};
+  if (currentTrick) {
+    currentTrick.playerOrder.forEach((playerId, idx) => {
+      const card = currentTrick.playedCards[idx];
+      if (!card) return;
+
+      let direction: Direction;
+      if (playerId === activePlayer.sessionId) {
+        direction = 'bottom';
+      } else {
+        const seatIndex = nonActivePlayers.indexOf(playerId);
+        const seat = seatMap[seatIndex];
+        direction = seat as Direction;
+      }
+      if (direction) {
+        playedCardsMap[direction] = card;
+      }
+    });
+  }
 
   return (
     <Box
@@ -120,6 +141,17 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
           </Box>
         );
       })}
+
+      {/* Played Card Stack */}
+      {currentTrick && currentTrick.playedCards.length > 0 && (
+        <Center style={{ gridArea: 'center' }}>
+          <CardStack
+            startingDirection="bottom"
+            cardFromThisDirection={playedCardsMap}
+            width={100}
+          />
+        </Center>
+      )}
 
       {/* Active Player's Communicated Card */}
       <Center style={{ gridArea: "active-comm" }}>
