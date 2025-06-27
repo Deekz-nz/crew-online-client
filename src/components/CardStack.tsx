@@ -1,4 +1,3 @@
-// CardStack.tsx
 import React from 'react';
 import { Card } from '../types';
 import { GameCard } from './GameCard';
@@ -14,7 +13,7 @@ export type Direction =
 interface CardStackProps {
   startingDirection: Direction;
   cardFromThisDirection: Partial<Record<Direction, Card>>;
-  size?: number;
+  width?: number; // base width in px
 }
 
 const CLOCKWISE_DIRECTIONS: Direction[] = [
@@ -26,30 +25,30 @@ const CLOCKWISE_DIRECTIONS: Direction[] = [
   'right',
 ];
 
-// Translation offsets for each direction
-const translationMap: Record<Direction, { x: number; y: number }> = {
-  bottom: { x: 0, y: 20 },
-  left: { x: -20, y: 0 },
-  "top-left": { x: -15, y: -15 },
-  "top-middle": { x: 0, y: -20 },
-  "top-right": { x: 15, y: -15 },
-  right: { x: 20, y: 0 },
-};
-
 export const CardStack: React.FC<CardStackProps> = ({ 
   startingDirection, 
   cardFromThisDirection, 
-  size = 100 
+  width = 100,
 }) => {
-  // Reorder directions starting from startingDirection
   const startIndex = CLOCKWISE_DIRECTIONS.indexOf(startingDirection);
   const orderedDirections = [
     ...CLOCKWISE_DIRECTIONS.slice(startIndex),
     ...CLOCKWISE_DIRECTIONS.slice(0, startIndex),
   ];
 
+  const translateAmount = width * 0.5;
+
+  const translationMap: Record<Direction, { x: number; y: number }> = {
+    bottom: { x: 0, y: translateAmount },
+    left: { x: -translateAmount, y: 0 },
+    'top-left': { x: -translateAmount * 0.75, y: -translateAmount * 0.75 },
+    'top-middle': { x: 0, y: -translateAmount },
+    'top-right': { x: translateAmount * 0.75, y: -translateAmount * 0.75 },
+    right: { x: translateAmount, y: 0 },
+  };
+
   return (
-    <div style={{ position: 'relative', width: size * 1.5, height: size * 2, display: 'inline-block' }}>
+    <div style={{ position: 'relative', width: width * 2, height: width * 2.5, display: 'inline-block' }}>
       {orderedDirections.map((direction, index) => {
         const card = cardFromThisDirection[direction];
         if (!card) return null;
@@ -65,7 +64,7 @@ export const CardStack: React.FC<CardStackProps> = ({
 
         return (
           <div key={direction} style={cardStyle}>
-            <GameCard card={card} size={size} shadow />
+            <GameCard card={card} size={width} shadow />
           </div>
         );
       })}
