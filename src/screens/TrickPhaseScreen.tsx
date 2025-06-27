@@ -2,7 +2,6 @@ import { Button, Center, Text } from "@mantine/core";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerGridLayout from "./PlayerGridLayout";
 import { TRICK_PHASE_GRID } from "./GridTemplates";
-import { GameCard } from "../components/GameCard"; // Assuming GameCard renders a Card
 import { Card, CommunicationRank } from "../types";
 import { notifications } from '@mantine/notifications';
 
@@ -35,71 +34,7 @@ export default function TrickPhaseScreen() {
     ...playerOrder.slice(0, activeIndex)
   ];
 
-  // NOTE: ALSO CHANGE THIS IN TRICKPHASESCREEN.TSX
-  const seatPositionsByCount: Record<number, string[]> = {
-    2: ["top-left", "top-right"],
-    3: ["left", "top-middle", "right"],
-    4: ["left", "top-left", "top-right", "right"]
-  };
-
-  const seatCardAreasBySeat: Record<string, string> = {
-    "left": "left-card",
-    "right": "right-card",
-    "top-middle": "top-middle-card",
-    "top-left": "top-left-card",
-    "top-right": "top-right-card"
-  };
-
-  const nonActivePlayers = rotatedOrder.slice(1);
-  const seatMap = seatPositionsByCount[nonActivePlayers.length] || [];
-
   const someoneCommunicating = players.some(p => p.intendsToCommunicate);
-
-  const playedCardElements = rotatedOrder.map((playerId, idx) => {
-    // Get seat/grid area for this player
-    let gridArea = "active-card";
-    if (idx === 0) {
-      gridArea = "active-card";
-    } else {
-      const seat = seatMap[idx - 1];
-      gridArea = seatCardAreasBySeat[seat];
-    }
-  
-    // Check if this player has played a card
-    const playedIndex = currentTrick.playerOrder.indexOf(playerId);
-    const hasPlayed = playedIndex !== -1;
-    const card = hasPlayed ? currentTrick.playedCards[playedIndex] : null;
-
-    const isThisPlayerTurn = currentPlayer === playerId;
-    const player = players.find(p => p.sessionId === playerId);
-    const isCommunicating = player?.intendsToCommunicate;
-
-    if (card) {
-      return (
-        <Center key={`card-${playerId}`} style={{ gridArea }}>
-          <GameCard card={card} size={100} />
-        </Center>
-      );
-    } else if (isCommunicating) {
-      return (
-        <Center key={`communicating-${playerId}`} style={{ gridArea }}>
-          <Text size="lg" fw={700} c="blue">
-            Communicating...
-          </Text>
-        </Center>
-      );
-    } else if (isThisPlayerTurn) {
-      return (
-        <Center key={`waiting-${playerId}`} style={{ gridArea }}>
-          <Text size="lg" fw={700} c="red">
-            Waiting...
-          </Text>
-        </Center>
-      );
-    } else {
-      return null;
-    }
-  });
   
   
   const handleCommunicateCard = (card: Card) => {
@@ -164,9 +99,6 @@ export default function TrickPhaseScreen() {
       canUndo={canUndo}
     >
       {/* Only render trick-specific content here */}
-
-      {/* Played Cards */}
-      {playedCardElements}
 
       {/* Next Trick Button */}
       {allCardsPlayed && (
