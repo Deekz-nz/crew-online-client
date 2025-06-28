@@ -36,8 +36,9 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [playerHistoryStats, setPlayerHistoryStats] = useState<FrontendHistoryStats>({});
 
   const syncState = (state: GameState, sessionId: string) => {
+    if (!state || !state.players) return;
     const updatedPlayers: Player[] = [];
-    state.players.forEach((player: any) => {
+    state.players.forEach((player: Player) => {
       updatedPlayers.push({
         sessionId: player.sessionId,
         displayName: player.displayName,
@@ -55,7 +56,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
 
     const player = state.players.get(sessionId);
     if (player) {
-      const cards: Card[] = Array.from(player.hand).map((card: any) => ({
+      const cards: Card[] = Array.from(player.hand).map((card: Card) => ({
         color: card.color,
         number: card.number,
       }));
