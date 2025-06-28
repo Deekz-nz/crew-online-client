@@ -35,6 +35,67 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [commanderPlayer, setCommanderPlayer] = useState("");
   const [playerHistoryStats, setPlayerHistoryStats] = useState<FrontendHistoryStats>({});
 
+  const syncState = (state: GameState, sessionId: string) => {
+    const updatedPlayers: Player[] = [];
+    state.players.forEach((player: any) => {
+      updatedPlayers.push({
+        sessionId: player.sessionId,
+        displayName: player.displayName,
+        hand: [],
+        hasCommunicated: player.hasCommunicated,
+        intendsToCommunicate: player.intendsToCommunicate,
+        communicationCard: player.communicationCard,
+        communicationRank: player.communicationRank,
+        isHost: player.isHost,
+        isConnected: player.isConnected,
+      });
+    });
+    setPlayers(updatedPlayers);
+    setPlayerOrder(Array.from(state.playerOrder));
+
+    const player = state.players.get(sessionId);
+    if (player) {
+      const cards: Card[] = Array.from(player.hand).map((card: any) => ({
+        color: card.color,
+        number: card.number,
+      }));
+      setHand(cards);
+      setActivePlayer({
+        sessionId: player.sessionId,
+        displayName: player.displayName,
+        hand: cards,
+        hasCommunicated: player.hasCommunicated,
+        intendsToCommunicate: player.intendsToCommunicate,
+        communicationCard: player.communicationCard,
+        communicationRank: player.communicationRank,
+        isHost: player.isHost,
+        isConnected: player.isConnected,
+      });
+    }
+
+    setPlayedCards(Array.from(state.currentTrick?.playedCards || []));
+    const taskList: SimpleTask[] = Array.from(state.allTasks);
+    setTasks(taskList);
+    setCurrentPlayer(state.currentPlayer);
+    setCommanderPlayer(state.commanderPlayer);
+    setGameStage(state.currentGameStage);
+    setCurrentTrick(state.currentTrick);
+    setCompletedTricks(Array.from(state.completedTricks));
+    setExpectedTrickCount(state.expectedTrickCount);
+    setGameFinished(state.gameFinished);
+    setGameSucceeded(state.gameSucceeded);
+
+    const historyStats: Record<string, { cards: Card[]; tasks: SimpleTask[] }> = {};
+    state.historyPlayerStats.forEach((history, playerId) => {
+      historyStats[playerId] = {
+        cards: Array.from(history.cards),
+        tasks: Array.from(history.tasks),
+      };
+    });
+
+    setPlayerHistoryStats(historyStats);
+  };
+
   const createRoom = async (displayName: string) => {
     if (!displayName.trim()) return;
     const roomCode = generateRoomCode();
@@ -91,68 +152,12 @@ export const useGameRoom = (client: Colyseus.Client) => {
   
   // The main method responsible for syncing the backend state to the frontend
   const setupRoomListeners = (joinedRoom: Colyseus.Room<GameState>) => {
-    joinedRoom.onStateChange((state: GameState) => {
-      const updatedPlayers: Player[] = [];
-      state.players.forEach((player: any) => {
-        updatedPlayers.push({
-          sessionId: player.sessionId,
-          displayName: player.displayName,
-          hand: [],
-          hasCommunicated: player.hasCommunicated,
-          intendsToCommunicate: player.intendsToCommunicate,
-          communicationCard: player.communicationCard,
-          communicationRank: player.communicationRank,
-          isHost: player.isHost,
-          isConnected: player.isConnected,
-        });
-      });
-      setPlayers(updatedPlayers);
-      setPlayerOrder(Array.from(state.playerOrder));
-  
-      const player = state.players.get(joinedRoom.sessionId);
-      if (player) {
-        const cards: Card[] = Array.from(player.hand).map((card: any) => ({
-          color: card.color,
-          number: card.number,
-        }));
-        setHand(cards);
-        setActivePlayer({
-          sessionId: player.sessionId,
-          displayName: player.displayName,
-          hand: cards,
-          hasCommunicated: player.hasCommunicated,
-          intendsToCommunicate: player.intendsToCommunicate,
-          communicationCard: player.communicationCard,
-          communicationRank: player.communicationRank,
-          isHost: player.isHost,
-          isConnected: player.isConnected,
-        });
-      }
-  
-      setPlayedCards(Array.from(state.currentTrick?.playedCards || []));
-      const taskList: SimpleTask[] = Array.from(state.allTasks);
-      setTasks(taskList);
-      setCurrentPlayer(state.currentPlayer);
-      setCommanderPlayer(state.commanderPlayer);
-      setGameStage(state.currentGameStage);
-      setCurrentTrick(state.currentTrick);
-      setCompletedTricks(Array.from(state.completedTricks));
-      setExpectedTrickCount(state.expectedTrickCount);
-      setGameFinished(state.gameFinished);
-      setGameSucceeded(state.gameSucceeded);
+    syncState(joinedRoom.state, joinedRoom.sessionId);
 
-      const historyStats: Record<string, { cards: Card[]; tasks: SimpleTask[] }> = {};
-      state.historyPlayerStats.forEach((history, playerId) => {
-        historyStats[playerId] = {
-          cards: Array.from(history.cards),
-          tasks: Array.from(history.tasks),
-        };
-      });
-      
-      setPlayerHistoryStats(historyStats); // Update this to your `useState` setter
-      
+    joinedRoom.onStateChange((state: GameState) => {
+      syncState(state, joinedRoom.sessionId);
     });
-  
+
     joinedRoom.onMessage("room_closed", (message) => {
       console.log("Room closed due to:", message.reason);
       // Show notification or redirect
