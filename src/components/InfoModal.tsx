@@ -1,4 +1,4 @@
-import { Modal, Stack, Text, Divider, Button } from '@mantine/core';
+import { Modal, Stack, Text, Divider, Button, Group, CopyButton } from '@mantine/core';
 import { useGameContext } from '../hooks/GameProvider';
 import { GameHand } from './GameHand';
 
@@ -8,9 +8,11 @@ interface InfoModalProps {
 }
 
 export function InfoModal({ opened, onClose }: InfoModalProps) {
-  const { completedTricks, players, expectedTrickCount, activePlayer, sendRestartGame, sendGiveUp } = useGameContext();
+  const { completedTricks, players, expectedTrickCount, activePlayer, room, sendRestartGame, sendGiveUp } = useGameContext();
 
   const tricksRemaining = expectedTrickCount - completedTricks.length;
+
+  const roomUrl = `${window.location.origin}/${room?.roomId ?? ""}`;
 
   const playerWinsMap: Record<string, number> = {};
   completedTricks.forEach(trick => {
@@ -24,6 +26,24 @@ export function InfoModal({ opened, onClose }: InfoModalProps) {
   return (
     <Modal opened={opened} onClose={onClose} title="Game Info" centered>
       <Stack gap="sm">
+        {room && (
+          <>
+            <Text fw={600}>Room Code:</Text>
+            <Group align="center">
+              <Text size="lg" fw={700} style={{ letterSpacing: '0.1em' }}>
+                {room.roomId}
+              </Text>
+              <CopyButton value={roomUrl} timeout={2000}>
+                {({ copied, copy }) => (
+                  <Button size="xs" onClick={copy}>
+                    {copied ? 'Copied' : 'Copy Link'}
+                  </Button>
+                )}
+              </CopyButton>
+            </Group>
+            <Divider />
+          </>
+        )}
         <Text fw={600}>Tricks Remaining: {tricksRemaining}</Text>
 
         <Divider />
