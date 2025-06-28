@@ -2,6 +2,7 @@ import { Button, Divider, Group, Stack, TextInput, Title } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 import { useLocation } from "react-router-dom";
+import { RoomList } from "../components/RoomList";
 
 export default function LobbyScreen() {
   const { joinRoom, createRoom } = useGameContext();
@@ -64,6 +65,8 @@ export default function LobbyScreen() {
       <Divider label="or" labelPosition="center" w={inputGroupWidth} />
 
       <Button size="lg" color="blue" onClick={handleCreate}>Create New Room</Button>
+
+      <RoomList displayName={displayName} />
     </Stack>
   );
 }
