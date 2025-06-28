@@ -18,6 +18,7 @@ interface TaskCardProps {
   onClick?: () => void;
   disabled?: boolean;
   ownerDisplayName?: string;
+  bigToken?: boolean;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({
@@ -26,12 +27,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onClick,
   disabled,
   ownerDisplayName,
+  bigToken, 
 }) => {
   const { card, taskCategory, sequenceIndex, completed, failed } = task;
   const { color, number } = card;
   const { background, dark } = colorStyles[color];
 
-  const tokenHeight = width * 0.6; // circle token size
+  const tokenHeight = bigToken ? width : width * 0.6; // circle token size
   const tokenGap = 4;
   const cardHeight = width * 1.1;
   const wrapperHeight = tokenHeight + tokenGap + cardHeight;
@@ -73,7 +75,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          fontSize: width * 0.3,
+          fontSize: tokenHeight * 0.6,
           border: circleContent ? '2px solid black' : 'none',
           boxShadow: circleContent ? '0 0 4px rgba(0, 0, 0, 0.4)' : 'none',
         }}

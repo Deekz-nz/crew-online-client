@@ -40,6 +40,7 @@ export default function PlayerStatus({
             task={task}
             width={taskWidth}
             disabled
+            bigToken
           />
         ))}
       </Group>
