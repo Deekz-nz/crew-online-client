@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as Colyseus from "colyseus.js";
-import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank, FrontendHistoryStats } from "../types";
+import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank, FrontendHistoryStats, BaseTask } from "../types";
 import { notifications } from "@mantine/notifications";
 
 /**
@@ -25,7 +25,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [playedCards, setPlayedCards] = useState<Card[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState("");
   const [gameStage, setGameStage] = useState("");
-  const [tasks, setTasks] = useState<SimpleTask[]>([]);
+  const [tasks, setTasks] = useState<BaseTask[]>([]);
   const [completedTricks, setCompletedTricks] = useState<Trick[]>([]);
   const [currentTrick, setCurrentTrick] = useState<Trick | null>(null);
   const [expectedTrickCount, setExpectedTrickCount] = useState<number>(0);
@@ -75,7 +75,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     }
 
     setPlayedCards(Array.from(state.currentTrick?.playedCards || []));
-    const taskList: SimpleTask[] = Array.from(state.allTasks);
+    const taskList: BaseTask[] = Array.from(state.allTasks);
     setTasks(taskList);
     setCurrentPlayer(state.currentPlayer);
     setCommanderPlayer(state.commanderPlayer);
@@ -212,11 +212,11 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("finish_trick");
   };
 
-  const sendTakeTask = (task: SimpleTask) => {
+  const sendTakeTask = (task: BaseTask) => {
     room?.send("take_task", task);
   };
 
-  const sendReturnTask = (task: SimpleTask) => {
+  const sendReturnTask = (task: BaseTask) => {
     room?.send("return_task", task);
   };
 

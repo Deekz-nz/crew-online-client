@@ -40,15 +40,25 @@ export interface Trick {
   trickCompleted: boolean;
 }
 
-export interface SimpleTask {
-  card: Card;
+export interface BaseTask {
+  taskId: string;
   player: string;
+  failed: boolean;
+  completed: boolean;
+
+  completedAtTrickIndex?: number;
+}
+export interface SimpleTask extends BaseTask {
+  card: Card;
   taskNumber: number;
   taskCategory: TaskCategory;
   sequenceIndex: number;
-  failed: boolean;
-  completed: boolean;
-  completedAtTrickIndex?: number;
+}
+
+export interface ExpansionTask extends BaseTask {
+  displayName: string;
+  description: string;
+  evaluationDescription: string;
 }
 
 export interface ColyseusPlayerHistory {
@@ -68,6 +78,8 @@ export interface GameState {
   gameHost: string;
   gameStarted: boolean;
 
+  playExpansion: boolean;
+
   players: MapSchema<Player>;           // Colyseus MapSchema
   playerOrder: ArraySchema<string>;     // Colyseus ArraySchema
   currentPlayer: string;
@@ -77,8 +89,7 @@ export interface GameState {
   completedTricks: ArraySchema<Trick>;  // Colyseus ArraySchema
   expectedTrickCount: number;
 
-
-  allTasks: SimpleTask[]; // Colyseus ArraySchema<SimpleTask>
+  allTasks: BaseTask[]; // Colyseus ArraySchema<SimpleTask>
 
   gameFinished: boolean;
   gameSucceeded: boolean;
