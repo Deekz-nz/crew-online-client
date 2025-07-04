@@ -23,7 +23,12 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
 }) => {
   const { displayName, completed, failed, evaluationDescription, difficulty, player } = task;
 
-  const { activePlayer } = useGameContext();
+  const {
+    activePlayer,
+    players,
+    sendRegisterInterest,
+    sendCancelInterest
+  } = useGameContext();
 
   const [opened, setOpened] = useState(false);
 
@@ -46,6 +51,10 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
   const { width, textSize } = currentSize;
   const wrapperHeight = width;
   const isInteractive = !!onClick && !disabled;
+  const isInterested = task.interestedPlayers?.includes(activePlayer?.sessionId ?? "");
+  const interestedNames = players
+    .filter(p => task.interestedPlayers?.includes(p.sessionId))
+    .map(p => p.displayName);
 
   const handleClick = () => {
     setOpened(true);
@@ -112,6 +121,24 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
             {ownerDisplayName}
           </div>
         )}
+
+        {task.interestedPlayers?.length ? (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 4,
+              right: 4,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              color: 'white',
+              borderRadius: '50%',
+              padding: '2px 6px',
+              fontSize: width * 0.25,
+              lineHeight: 1,
+            }}
+          >
+            {task.interestedPlayers.length}
+          </div>
+        ) : null}
       </div>
 
       <Modal
@@ -130,6 +157,15 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
         </Text>
         <Rating value={difficulty} readOnly />
 
+        {interestedNames.length > 0 && (
+          <>
+            <Text size="lg" fw={500} mt="sm" mb={4}>
+              Interested Players:
+            </Text>
+            <Text mb="sm">{interestedNames.join(', ')}</Text>
+          </>
+        )}
+
         {renderButtonLabel() && (
           <Button
             size="lg"
@@ -141,6 +177,22 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
             }}
           >
             {renderButtonLabel()}
+          </Button>
+        )}
+
+        {isInteractive && (
+          <Button
+            size="lg"
+            fullWidth
+            mt="sm"
+            onClick={() => {
+              isInterested
+                ? sendCancelInterest(task)
+                : sendRegisterInterest(task);
+              setOpened(false);
+            }}
+          >
+            {isInterested ? 'Cancel Interest' : 'Register Interest'}
           </Button>
         )}
       </Modal>

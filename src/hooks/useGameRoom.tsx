@@ -224,6 +224,14 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("return_task", task);
   };
 
+  const sendRegisterInterest = (task: BaseTask) => {
+    room?.send("register_interest_in_task", task);
+  };
+
+  const sendCancelInterest = (task: BaseTask) => {
+    room?.send("cancel_interest_in_task", task);
+  };
+
   const sendFinishTaskAllocation = () => {
     room?.send("finish_task_allocation");
   };
@@ -267,6 +275,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendFinishTrick,
     sendTakeTask,
     sendReturnTask,
+    sendRegisterInterest,
+    sendCancelInterest,
     sendFinishTaskAllocation,
     sendRestartGame,
     sendGiveUp
