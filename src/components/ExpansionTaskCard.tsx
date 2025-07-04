@@ -3,6 +3,7 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 import { ExpansionTask } from '../types';
 import { Avatar, Text, Rating, Button, Modal } from '@mantine/core';
 import { useGameContext } from '../hooks/GameProvider';
+import { ColorizedTaskTitle } from './ColourTaskTitle';
 
 interface ExpansionTaskCardProps {
   task: ExpansionTask;
@@ -81,9 +82,7 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
         }}
         onClick={handleClick}
       >
-        <Text size={textSize} fw={600} c="black" ta="center">
-          {displayName}
-        </Text>
+        <ColorizedTaskTitle text={displayName} size={textSize} />
 
         {(completed || failed) && (
           <div
