@@ -175,6 +175,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
       sequencedTasks: number;
       lastTask: boolean;
     };
+    useExpansion: boolean;
+    difficultyScore: number;
   }) => {
     room?.send("start_game", setupData);
   };

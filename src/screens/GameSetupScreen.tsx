@@ -1,4 +1,4 @@
-import { Button, Checkbox, CopyButton, Group, NumberInput, Stack, Text, Title } from "@mantine/core";
+import { Button, Checkbox, CopyButton, Group, NumberInput, Radio, Stack, Text, Title } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 
@@ -28,6 +28,11 @@ const defaultTaskSettings = {
   sequencedTasks: 0,
 };
 
+const defaultExpansionSettings = {
+  playExpansion: false,
+  expansionDifficulty: 8,
+}
+
 export default function GameSetupScreen() {
   const { players, room, startGame, activePlayer } = useGameContext();
 
@@ -36,6 +41,21 @@ export default function GameSetupScreen() {
   const [plainTasks, setPlainTasks] = useState(defaultTaskSettings.plainTasks);
   const [orderedTasks, setOrderedTasks] = useState(defaultTaskSettings.orderedTasks);
   const [sequencedTasks, setSequencedTasks] = useState(defaultTaskSettings.sequencedTasks);
+
+  const [playExpansion, setPlayExpansion] = useState(defaultExpansionSettings.playExpansion);
+  const [expansionDifficulty, setExpansionDifficulty] = useState<number>(defaultExpansionSettings.expansionDifficulty);
+
+  const [gameVersionValue, setGameVersionValue] = useState('base');
+
+  useEffect(() => {
+    if (gameVersionValue === "expansion") {
+      setPlayExpansion(true);
+      setIncludeTasks(false);
+    } else {
+      setPlayExpansion(false);
+      setIncludeTasks(true);
+    }
+  }, [gameVersionValue])
 
   const isHost = activePlayer?.isHost;
   const roomUrl = `${window.location.origin}/${room?.roomId || ""}`;
@@ -52,6 +72,8 @@ export default function GameSetupScreen() {
           setPlainTasks(parsed.plainTasks ?? defaultTaskSettings.plainTasks);
           setOrderedTasks(parsed.orderedTasks ?? defaultTaskSettings.orderedTasks);
           setSequencedTasks(parsed.sequencedTasks ?? defaultTaskSettings.sequencedTasks);
+          setPlayExpansion(parsed.playExpansion ?? defaultExpansionSettings.playExpansion);
+          setExpansionDifficulty(parsed.expansionDifficulty ?? defaultExpansionSettings.expansionDifficulty);
         }
       } catch (e) {
         console.warn("Failed to parse task settings from local storage", e);
@@ -67,6 +89,8 @@ export default function GameSetupScreen() {
       plainTasks,
       orderedTasks,
       sequencedTasks,
+      playExpansion,
+      expansionDifficulty
     };
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
   };
@@ -82,6 +106,8 @@ export default function GameSetupScreen() {
         sequencedTasks,
         lastTask,
       },
+      useExpansion: playExpansion,
+      difficultyScore: expansionDifficulty,
     });
   };
 
@@ -92,6 +118,8 @@ export default function GameSetupScreen() {
     setPlainTasks(defaultTaskSettings.plainTasks);
     setOrderedTasks(defaultTaskSettings.orderedTasks);
     setSequencedTasks(defaultTaskSettings.sequencedTasks);
+    setPlayExpansion(defaultExpansionSettings.playExpansion);
+    setExpansionDifficulty(defaultExpansionSettings.expansionDifficulty);
   };
 
   return (
@@ -129,44 +157,69 @@ export default function GameSetupScreen() {
 
       {isHost ? (
         <>
-          <Text fw={500} mt="md">Task Settings:</Text>
-          <Checkbox
-            label="Include Tasks"
-            checked={includeTasks}
-            onChange={(e) => setIncludeTasks(e.currentTarget.checked)}
-          />
-          <Checkbox
-            label="Include Last Trick Task"
-            checked={lastTask}
-            onChange={(e) => setLastTask(e.currentTarget.checked)}
-            disabled={!includeTasks}
-          />
-          <Group grow>
-            <NumberInput
-              label="Plain Tasks"
-              value={plainTasks}
-              onChange={(val) => setPlainTasks(typeof val === "number" ? val : 0)}
-              min={0}
-              max={8}
-              disabled={!includeTasks}
-            />
-            <NumberInput
-              label="Ordered Tasks"
-              value={orderedTasks}
-              onChange={(val) => setOrderedTasks(typeof val === "number" ? val : 0)}
-              min={0}
-              max={8}
-              disabled={!includeTasks}
-            />
-            <NumberInput
-              label="Sequenced Tasks"
-              value={sequencedTasks}
-              onChange={(val) => setSequencedTasks(typeof val === "number" ? val : 0)}
-              min={0}
-              max={8}
-              disabled={!includeTasks}
-            />
-          </Group>
+          <Text fw={500} mt="md">Game Version:</Text>
+          <Radio.Group
+            value={gameVersionValue}
+            onChange={setGameVersionValue}
+            name="gameVersion"
+            withAsterisk
+            size="md"
+          >
+            <Stack gap="sm">
+              <Radio value="base" label="Base Game" />
+              <Radio value="expansion" label="Expansion"/>
+            </Stack>
+          </Radio.Group>
+          {gameVersionValue === "base" && (
+            <>
+              <Text fw={500} mt="md">Base Game Settings:</Text>
+              <Checkbox
+                label="Include Last Trick Task"
+                checked={lastTask}
+                onChange={(e) => setLastTask(e.currentTarget.checked)}
+                disabled={!includeTasks}
+              />
+              <Group grow>
+                <NumberInput
+                  label="Plain Tasks"
+                  value={plainTasks}
+                  onChange={(val) => setPlainTasks(typeof val === "number" ? val : 0)}
+                  min={0}
+                  max={8}
+                  disabled={!includeTasks}
+                />
+                <NumberInput
+                  label="Ordered Tasks"
+                  value={orderedTasks}
+                  onChange={(val) => setOrderedTasks(typeof val === "number" ? val : 0)}
+                  min={0}
+                  max={8}
+                  disabled={!includeTasks}
+                />
+                <NumberInput
+                  label="Sequenced Tasks"
+                  value={sequencedTasks}
+                  onChange={(val) => setSequencedTasks(typeof val === "number" ? val : 0)}
+                  min={0}
+                  max={8}
+                  disabled={!includeTasks}
+                />
+              </Group>
+            </>
+          )}
+
+          {gameVersionValue === "expansion" && (
+            <>
+              <Text fw={500} mt="md">Expansion Settings:</Text>
+              <NumberInput
+                  label="Difficulty Score"
+                  value={expansionDifficulty}
+                  onChange={(val) => setExpansionDifficulty(typeof val === "number" ? val : 0)}
+                  min={1}
+                  max={30}
+                />
+            </>
+          )}
 
           <Group mt="sm">
             <Button variant="default" onClick={handleResetDefaults}>
