@@ -79,7 +79,8 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
           alignItems: 'center',
           justifyContent: 'flex-start',
           background: 'linear-gradient(135deg, #cbe6f5 0%, #f2f2f2 100%)',
-          border: '4px solid white',
+          border: '4px solid',
+          borderColor: isInterested && !task.player ? 'green' : 'white',
           borderRadius: 16,
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           padding: 2,
@@ -122,22 +123,27 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
           </div>
         )}
 
-        {task.interestedPlayers?.length ? (
-          <div
+        {task.interestedPlayers?.length && !task.player ? (
+          <Avatar
+            // use a pixel number so the circle scales with card width
+            size={width * 0.25}          // tweak the 0.38 ratio to taste
+            radius="xl"                  // fully round
+            variant="filled"
+            color="green"
+            p={2}
             style={{
               position: 'absolute',
               bottom: 4,
               right: 4,
-              backgroundColor: 'rgba(0,0,0,0.6)',
-              color: 'white',
-              borderRadius: '50%',
-              padding: '2px 6px',
-              fontSize: width * 0.25,
+              // keep text nicely centred & readable
+              fontSize: width * 0.18,
+              fontWeight: 600,
               lineHeight: 1,
+              pointerEvents: 'none',     // so clicks fall through to the card
             }}
           >
             {task.interestedPlayers.length}
-          </div>
+          </Avatar>
         ) : null}
       </div>
 
