@@ -1,13 +1,13 @@
 import { Group, Stack, Text } from "@mantine/core";
-import { Player, SimpleTask } from "../types";
+import { BaseTask, Player } from "../types";
 import { CommunicatedCard } from "./CommunicatedCard";
 import { TaskCard } from "./TaskCard";
 
 interface PlayerStatusProps {
   player: Player;
-  assignedTasks: SimpleTask[];
+  assignedTasks: BaseTask[];
   communicateWidth: number;
-  taskWidth: number;
+  taskSize: "lg" | "md" | "sm";
   textSize: "xs" | "sm" | "md" | "lg" | "xl";
   isCommander?: boolean;
 }
@@ -16,7 +16,7 @@ export default function PlayerStatus({
   player,
   assignedTasks,
   communicateWidth,
-  taskWidth,
+  taskSize,
   textSize,
   isCommander
 }: PlayerStatusProps) {
@@ -38,7 +38,7 @@ export default function PlayerStatus({
           <TaskCard
             key={idx}
             task={task}
-            width={taskWidth}
+            size={taskSize}
             disabled
             bigToken
           />

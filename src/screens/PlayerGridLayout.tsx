@@ -113,7 +113,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
               player={player}
               assignedTasks={assignedTasks}
               communicateWidth={80}
-              taskWidth={60}
+              taskSize="md"
               textSize="xl"
               isCommander={commanderPlayer === player.sessionId}
             />
@@ -154,7 +154,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
             <TaskCard
               key={idx}
               task={task}
-              width={80}
+              size={"md"}
               onClick={
                 gameStage === "game_setup"
                   ? () => sendReturnTask(task)

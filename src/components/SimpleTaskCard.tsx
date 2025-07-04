@@ -14,7 +14,7 @@ const colorStyles = {
 
 interface SimpleTaskCardProps {
   task: SimpleTask;
-  width: number;
+  size: "lg" | "md" | "sm"
   onClick?: () => void;
   disabled?: boolean;
   ownerDisplayName?: string;
@@ -23,19 +23,25 @@ interface SimpleTaskCardProps {
 
 export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
   task,
-  width,
+  size,
   onClick,
   disabled,
   ownerDisplayName,
   bigToken, 
 }) => {
+
+  let simpleWidth = 80
+  if (size === "lg") simpleWidth = 100;
+  if (size === "md") simpleWidth = 80;
+  if (size === "sm") simpleWidth = 60;
+
   const { card, taskCategory, sequenceIndex, completed, failed } = task;
   const { color, number } = card;
   const { background, dark } = colorStyles[color];
 
-  const tokenHeight = bigToken ? width : width * 0.6; // circle token size
+  const tokenHeight = bigToken ? simpleWidth : simpleWidth * 0.6; // circle token size
   const tokenGap = 4;
-  const cardHeight = width * 1.1;
+  const cardHeight = simpleWidth * 1.1;
   const wrapperHeight = tokenHeight + tokenGap + cardHeight;
   const isBlack = color === 'black';
 
@@ -47,7 +53,7 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
     const chevrons = Array(sequenceIndex).fill('›').join('');
     circleContent = <span style={{ fontWeight: 'bold' }}>{chevrons}</span>;
   } else if (taskCategory === 'must_be_last') {
-    circleContent = <IconOmega size={width * 0.2} stroke={2} />;
+    circleContent = <IconOmega size={simpleWidth * 0.2} stroke={2} />;
   }
 
   const isInteractive = onClick && !disabled;
@@ -56,7 +62,7 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
     <div
       style={{
         position: 'relative',
-        width,
+        width: simpleWidth,
         height: wrapperHeight,
         display: 'flex',
         flexDirection: 'column',
@@ -86,7 +92,7 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
       {/* Refactored Task Card Face */}
       <div
         style={{
-          width,
+          width: simpleWidth,
           height: cardHeight,
           backgroundColor: background,
           border: '2px solid white',
@@ -107,7 +113,7 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
         <span
           style={{
             fontWeight: 'bold',
-            fontSize: width * 0.5,
+            fontSize: simpleWidth * 0.5,
             color: isBlack ? 'white' : dark,
             textShadow: isBlack ? '0 0 4px white' : 'none',
             zIndex: 1, // Ensure it's above the icon
@@ -127,13 +133,13 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
             }}
           >
             {completed && (
-              <Avatar radius="xl" size={width * 0.4} color="green" variant="filled">
-                <IconCheck size={width * 0.25} stroke={2} />
+              <Avatar radius="xl" size={simpleWidth * 0.4} color="green" variant="filled">
+                <IconCheck size={simpleWidth * 0.25} stroke={2} />
               </Avatar>
             )}
             {failed && (
-              <Avatar radius="xl" size={width * 0.4} color="red" variant="filled">
-                <IconX size={width * 0.25} stroke={2} />
+              <Avatar radius="xl" size={simpleWidth * 0.4} color="red" variant="filled">
+                <IconX size={simpleWidth * 0.25} stroke={2} />
               </Avatar>
             )}
           </div>

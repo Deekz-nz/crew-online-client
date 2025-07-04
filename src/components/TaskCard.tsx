@@ -5,7 +5,7 @@ import { ExpansionTaskCard } from './ExpansionTaskCard';
 
 interface TaskCardProps {
   task: BaseTask;
-  width: number;
+  size: "lg" | "md" | "sm"
   onClick?: () => void;
   disabled?: boolean;
   ownerDisplayName?: string;
@@ -27,16 +27,17 @@ function isExpansionTask(task: BaseTask): task is ExpansionTask {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
-  width,
+  size,
   onClick,
   disabled,
   ownerDisplayName,
   bigToken, 
 }) => {
+
   if (isSimpleTask(task)) return (
     <SimpleTaskCard 
       task={task as SimpleTask}
-      width={width}
+      size={size}
       onClick={onClick}
       disabled={disabled}
       ownerDisplayName={ownerDisplayName}
@@ -47,7 +48,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   if (isExpansionTask(task)) return (
     <ExpansionTaskCard
       task={task as ExpansionTask}
-      width={width}
+      size={size}
       onClick={onClick}
       disabled={disabled}
       ownerDisplayName={ownerDisplayName}

@@ -38,7 +38,7 @@ export default function TaskPhaseScreen() {
             <TaskCard
               key={idx}
               task={task}
-              width={100}
+              size="lg"
               onClick={() => sendTakeTask(task)}
             />
           ))}
