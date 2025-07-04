@@ -152,7 +152,7 @@ export default function GameOverScreen() {
                       <Box key={playerId} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <Box style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           {history.tasks.map((task, index) => (
-                            <TaskCard key={`${playerId}-${index}`} task={task} width={60} disabled />
+                            <TaskCard key={`${playerId}-${index}`} task={task} size="sm" disabled />
                           ))}
                         </Box>
                         <Text size="md" fw={600} mt="sm" c="gray.7" ta="center">

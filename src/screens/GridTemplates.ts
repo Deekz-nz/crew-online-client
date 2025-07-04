@@ -17,7 +17,7 @@ export const TASK_PHASE_GRID = `
   ". top-left top-middle top-right info-button"
   ". center center center ."
   "left center center center right"
-  ". active-comm . active-task ."
+  ". active-comm . active-task active-task"
   "bottom-hand bottom-hand bottom-hand bottom-hand bottom-hand"
 `;
 
@@ -26,6 +26,6 @@ export const TRICK_PHASE_GRID = `
   ". top-left top-middle top-right info-button"
   ". top-left-card top-middle-card top-right-card ."
   "left left-card center right-card right"
-  ". active-comm active-card active-task ."
+  ". active-comm active-card active-task active-task"
   "bottom-hand bottom-hand bottom-hand bottom-hand bottom-hand"
 `;

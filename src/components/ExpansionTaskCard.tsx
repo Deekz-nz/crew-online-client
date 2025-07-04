@@ -21,10 +21,24 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
 }) => {
   const { displayName, completed, failed } = task;
 
-  let width = 100;
-  if (size === "sm") width = 100;
-  if (size === "md") width = 120;
-  if (size === "lg") width = 140;
+  const sizeConfig = {
+    sm: {
+      width: 70,
+      textSize: 'sm',
+    },
+    md: {
+      width: 95,
+      textSize: 'md',
+    },
+    lg: {
+      width: 120,
+      textSize: 'lg',
+    },
+    // Add more sizes as needed
+  };
+  
+  const currentSize = sizeConfig[size] ?? sizeConfig['md']; // fallback to 'md'
+  const { width, textSize } = currentSize
   const contentHeight = width;
   const wrapperHeight = contentHeight;
 
@@ -44,16 +58,17 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
         border: '4px solid white',
         borderRadius: 16,
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-        padding: 12,
-        boxSizing: 'border-box',
+        padding: 2,
+        boxSizing: 'border-box', 
         cursor: isInteractive ? 'pointer' : 'default',
         opacity: completed || failed ? 0.6 : 1,
         transition: 'transform 0.15s ease, filter 0.15s ease',
+        overflow: 'hidden'
       }}
       onClick={isInteractive ? onClick : undefined}
     >
       {/* Text directly on the background */}
-      <Text size="lg" fw={600} c="black" ta="center">
+      <Text size={textSize} fw={600} c="black" ta="center">
         {displayName}
       </Text>
 
