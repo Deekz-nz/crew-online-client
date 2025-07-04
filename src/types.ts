@@ -59,6 +59,7 @@ export interface ExpansionTask extends BaseTask {
   displayName: string;
   description: string;
   evaluationDescription: string;
+  difficulty: number; // A number from 1 - 5
 }
 
 export interface ColyseusPlayerHistory {
