@@ -15,7 +15,7 @@ export default function GameOverScreen() {
     gameFinished,
     sendRestartGame,
     gameSucceeded,
-    playerHistoryStats
+    playerHistoryStats,
   } = useGameContext();
 
   const [showRecap, setShowRecap] = useState(false);
@@ -37,6 +37,10 @@ export default function GameOverScreen() {
   players.forEach(player => {
     playerDisplayNames[player.sessionId] = player.displayName;
   });
+
+  const handleRestart = () => {
+    sendRestartGame();
+  }
 
   return (
     <motion.div
@@ -118,7 +122,7 @@ export default function GameOverScreen() {
 
           <Box mt="lg" mb="lg" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {isHost && (
-              <Button onClick={sendRestartGame} color="teal" size="lg">
+              <Button onClick={handleRestart} color="teal" size="lg">
                 Restart Game
               </Button>
             )}

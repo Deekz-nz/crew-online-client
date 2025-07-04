@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as Colyseus from "colyseus.js";
 import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank, FrontendHistoryStats, BaseTask } from "../types";
 import { notifications } from "@mantine/notifications";
+import { LS_PREVIOUS_TASKS } from "../screens/GameSetupScreen";
 
 /**
  * useGameRoom
@@ -177,6 +178,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     };
     useExpansion: boolean;
     difficultyScore: number;
+    startingTasks?: string[];
   }) => {
     room?.send("start_game", setupData);
   };
@@ -227,6 +229,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
   };
 
   const sendRestartGame = () => {
+    const previousTaskIDs = tasks.map(task => task.taskId);
+    localStorage.setItem(LS_PREVIOUS_TASKS, JSON.stringify(previousTaskIDs));
     room?.send("restart_game");
   };
 

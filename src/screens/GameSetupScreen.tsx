@@ -1,25 +1,22 @@
-import { Button, Checkbox, CopyButton, Group, NumberInput, Radio, Stack, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Checkbox,
+  CopyButton,
+  Group,
+  NumberInput,
+  Radio,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 
-/**
- * GameSetupScreen
- * ----------------
- * Screen shown after joining a room, before the game starts ("not_started" stage).
- *
- * - Displays list of players in the room and indicates who the host is.
- * - If the user is the host:
- *     - Shows game setup form to configure number/type of tasks.
- *     - Displays a "Start Game" button to begin task allocation.
- * - Non-host players see a "Waiting for host to start the game" message.
- *
- * Transitions to TaskPhaseScreen when the game is started.
- */
+// --- Local-storage keys -----------------------------------------------------
+const LS_SETTINGS = "gameTaskSettings";
+export const LS_PREVIOUS_TASKS = "previousTaskIDs";
 
-// Local storage key
-const LOCAL_STORAGE_KEY = "gameTaskSettings";
-
-// Default task settings
+// --- Defaults ---------------------------------------------------------------
 const defaultTaskSettings = {
   includeTasks: true,
   lastTask: false,
@@ -31,23 +28,92 @@ const defaultTaskSettings = {
 const defaultExpansionSettings = {
   playExpansion: false,
   expansionDifficulty: 8,
-  gameVersionValue: "base"
-}
+  gameVersionValue: "base",
+};
 
 export default function GameSetupScreen() {
   const { players, room, startGame, activePlayer } = useGameContext();
+  const isHost = activePlayer?.isHost;
 
-  const [includeTasks, setIncludeTasks] = useState(defaultTaskSettings.includeTasks);
+  // ----- BASE-GAME state ----------------------------------------------------
+  const [includeTasks, setIncludeTasks] = useState(
+    defaultTaskSettings.includeTasks,
+  );
   const [lastTask, setLastTask] = useState(defaultTaskSettings.lastTask);
   const [plainTasks, setPlainTasks] = useState(defaultTaskSettings.plainTasks);
-  const [orderedTasks, setOrderedTasks] = useState(defaultTaskSettings.orderedTasks);
-  const [sequencedTasks, setSequencedTasks] = useState(defaultTaskSettings.sequencedTasks);
+  const [orderedTasks, setOrderedTasks] = useState(
+    defaultTaskSettings.orderedTasks,
+  );
+  const [sequencedTasks, setSequencedTasks] = useState(
+    defaultTaskSettings.sequencedTasks,
+  );
 
-  const [playExpansion, setPlayExpansion] = useState(defaultExpansionSettings.playExpansion);
-  const [expansionDifficulty, setExpansionDifficulty] = useState<number>(defaultExpansionSettings.expansionDifficulty);
+  // ----- EXPANSION state ----------------------------------------------------
+  const [playExpansion, setPlayExpansion] = useState(
+    defaultExpansionSettings.playExpansion,
+  );
+  const [expansionDifficulty, setExpansionDifficulty] = useState<number>(
+    defaultExpansionSettings.expansionDifficulty,
+  );
+  const [gameVersionValue, setGameVersionValue] = useState(
+    defaultExpansionSettings.gameVersionValue,
+  );
 
-  const [gameVersionValue, setGameVersionValue] = useState(defaultExpansionSettings.gameVersionValue);
+  // ----- “use previous tasks” state ----------------------------------------
+  const [storedTaskIDs, setStoredTaskIDs] = useState<string[]>([]);
+  const [usePreviousTasks, setUsePreviousTasks] = useState(false);
 
+  // -------------------------------------------------------------------------
+  // Load settings + previous tasks once on mount
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    // ---------- main settings
+    const rawSettings = localStorage.getItem(LS_SETTINGS);
+    if (rawSettings) {
+      try {
+        const s = JSON.parse(rawSettings);
+        setIncludeTasks(s.includeTasks ?? defaultTaskSettings.includeTasks);
+        setLastTask(s.lastTask ?? defaultTaskSettings.lastTask);
+        setPlainTasks(s.plainTasks ?? defaultTaskSettings.plainTasks);
+        setOrderedTasks(s.orderedTasks ?? defaultTaskSettings.orderedTasks);
+        setSequencedTasks(
+          s.sequencedTasks ?? defaultTaskSettings.sequencedTasks,
+        );
+        setPlayExpansion(
+          s.playExpansion ?? defaultExpansionSettings.playExpansion,
+        );
+        setExpansionDifficulty(
+          s.expansionDifficulty ?? defaultExpansionSettings.expansionDifficulty,
+        );
+        setGameVersionValue(
+          s.gameVersionValue ?? defaultExpansionSettings.gameVersionValue,
+        );
+      } catch (err) {
+        console.warn("Could not parse gameTaskSettings", err);
+      }
+    }
+
+    // ---------- previous tasks
+    const rawPrev = localStorage.getItem(LS_PREVIOUS_TASKS);
+    if (rawPrev) {
+      try {
+        const parsed = JSON.parse(rawPrev);
+        // we support either a raw array or {previousTaskIDs:[...]}
+        const ids: unknown =
+          Array.isArray(parsed) ? parsed : parsed?.previousTaskIDs;
+        if (Array.isArray(ids) && ids.length) {
+          setStoredTaskIDs(ids);
+          setUsePreviousTasks(true); // auto-tick if we have them
+        }
+      } catch (err) {
+        console.warn("Could not parse previousTaskIDs", err);
+      }
+    }
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Keep expansion / includeTasks mutually exclusive
+  // -------------------------------------------------------------------------
   useEffect(() => {
     if (gameVersionValue === "expansion") {
       setPlayExpansion(true);
@@ -56,51 +122,29 @@ export default function GameSetupScreen() {
       setPlayExpansion(false);
       setIncludeTasks(true);
     }
-  }, [gameVersionValue])
+  }, [gameVersionValue]);
 
-  const isHost = activePlayer?.isHost;
-  const roomUrl = `${window.location.origin}/${room?.roomId || ""}`;
-
-  // Load from local storage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (typeof parsed === "object") {
-          setIncludeTasks(parsed.includeTasks ?? defaultTaskSettings.includeTasks);
-          setLastTask(parsed.lastTask ?? defaultTaskSettings.lastTask);
-          setPlainTasks(parsed.plainTasks ?? defaultTaskSettings.plainTasks);
-          setOrderedTasks(parsed.orderedTasks ?? defaultTaskSettings.orderedTasks);
-          setSequencedTasks(parsed.sequencedTasks ?? defaultTaskSettings.sequencedTasks);
-          setPlayExpansion(parsed.playExpansion ?? defaultExpansionSettings.playExpansion);
-          setExpansionDifficulty(parsed.expansionDifficulty ?? defaultExpansionSettings.expansionDifficulty);
-          setGameVersionValue(parsed.gameVersionValue ?? defaultExpansionSettings.gameVersionValue);
-        }
-      } catch (e) {
-        console.warn("Failed to parse task settings from local storage", e);
-      }
-    }
-  }, []);
-
-  // Save settings to local storage
-  const saveToLocalStorage = () => {
-    const settings = {
-      includeTasks,
-      lastTask,
-      plainTasks,
-      orderedTasks,
-      sequencedTasks,
-      playExpansion,
-      expansionDifficulty,
-      gameVersionValue
-    };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+  // -------------------------------------------------------------------------
+  // Helpers
+  // -------------------------------------------------------------------------
+  const saveSettings = () => {
+    localStorage.setItem(
+      LS_SETTINGS,
+      JSON.stringify({
+        includeTasks,
+        lastTask,
+        plainTasks,
+        orderedTasks,
+        sequencedTasks,
+        playExpansion,
+        expansionDifficulty,
+        gameVersionValue,
+      }),
+    );
   };
 
-  // Handle game start
   const handleStartGame = () => {
-    saveToLocalStorage();
+    saveSettings();
     startGame({
       includeTasks,
       taskInstructions: {
@@ -111,28 +155,39 @@ export default function GameSetupScreen() {
       },
       useExpansion: playExpansion,
       difficultyScore: expansionDifficulty,
+      startingTasks: usePreviousTasks ? storedTaskIDs : undefined,
     });
   };
 
-  // Reset settings to defaults
   const handleResetDefaults = () => {
     setIncludeTasks(defaultTaskSettings.includeTasks);
     setLastTask(defaultTaskSettings.lastTask);
     setPlainTasks(defaultTaskSettings.plainTasks);
     setOrderedTasks(defaultTaskSettings.orderedTasks);
     setSequencedTasks(defaultTaskSettings.sequencedTasks);
+
     setPlayExpansion(defaultExpansionSettings.playExpansion);
     setExpansionDifficulty(defaultExpansionSettings.expansionDifficulty);
+    setGameVersionValue(defaultExpansionSettings.gameVersionValue);
+
+    setUsePreviousTasks(false);
   };
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
+  const roomUrl = `${window.location.origin}/${room?.roomId ?? ""}`;
 
   return (
     <Stack>
       <Title order={2}>Game Setup</Title>
+
       <Text fw={500}>Players:</Text>
       <Stack>
         {players.map((p) => (
           <Text key={p.sessionId}>
-            {p.displayName} {p.isHost ? "(Host)" : ""} {p.sessionId === room?.sessionId ? "(You)" : ""}
+            {p.displayName} {p.isHost && "(Host)"}{" "}
+            {p.sessionId === room?.sessionId && "(You)"}
           </Text>
         ))}
       </Stack>
@@ -152,15 +207,16 @@ export default function GameSetupScreen() {
               )}
             </CopyButton>
           </Group>
-          <Text size="sm" c="dimmed">
-            Share this code with your friends so they can join.
-          </Text>
         </Stack>
       )}
 
+      {/* Host-only controls -------------------------------------------------- */}
       {isHost ? (
         <>
-          <Text fw={500} mt="md">Game Version:</Text>
+          {/* Which version are we playing? */}
+          <Text fw={500} mt="md">
+            Game Version:
+          </Text>
           <Radio.Group
             value={gameVersionValue}
             onChange={setGameVersionValue}
@@ -170,14 +226,18 @@ export default function GameSetupScreen() {
           >
             <Stack gap="sm">
               <Radio value="base" label="Base Game" />
-              <Radio value="expansion" label="Expansion"/>
+              <Radio value="expansion" label="Expansion" />
             </Stack>
           </Radio.Group>
+
+          {/* ---------------- BASE GAME ---------------- */}
           {gameVersionValue === "base" && (
             <>
-              <Text fw={500} mt="md">Base Game Settings:</Text>
+              <Text fw={500} mt="md">
+                Base Game Settings:
+              </Text>
               <Checkbox
-                label="Include Last Trick Task"
+                label="Include Last-Trick Task"
                 checked={lastTask}
                 onChange={(e) => setLastTask(e.currentTarget.checked)}
                 disabled={!includeTasks}
@@ -186,7 +246,7 @@ export default function GameSetupScreen() {
                 <NumberInput
                   label="Plain Tasks"
                   value={plainTasks}
-                  onChange={(val) => setPlainTasks(typeof val === "number" ? val : 0)}
+                  onChange={(v) => setPlainTasks(Number(v) || 0)}
                   min={0}
                   max={8}
                   disabled={!includeTasks}
@@ -194,7 +254,7 @@ export default function GameSetupScreen() {
                 <NumberInput
                   label="Ordered Tasks"
                   value={orderedTasks}
-                  onChange={(val) => setOrderedTasks(typeof val === "number" ? val : 0)}
+                  onChange={(v) => setOrderedTasks(Number(v) || 0)}
                   min={0}
                   max={8}
                   disabled={!includeTasks}
@@ -202,7 +262,7 @@ export default function GameSetupScreen() {
                 <NumberInput
                   label="Sequenced Tasks"
                   value={sequencedTasks}
-                  onChange={(val) => setSequencedTasks(typeof val === "number" ? val : 0)}
+                  onChange={(v) => setSequencedTasks(Number(v) || 0)}
                   min={0}
                   max={8}
                   disabled={!includeTasks}
@@ -211,19 +271,44 @@ export default function GameSetupScreen() {
             </>
           )}
 
+          {/* ---------------- EXPANSION ---------------- */}
           {gameVersionValue === "expansion" && (
             <>
-              <Text fw={500} mt="md">Expansion Settings:</Text>
+              <Text fw={500} mt="md">
+                Expansion Settings:
+              </Text>
+              <Checkbox
+                label="Use same tasks as last game"
+                checked={usePreviousTasks}
+                disabled={!storedTaskIDs.length}
+                onChange={(e) => setUsePreviousTasks(e.currentTarget.checked)}
+              />
+
+              {/* Show IDs only if the user ticked the box OR hovered */}
+              {storedTaskIDs.length > 0 && usePreviousTasks && (
+                <Stack gap={0} pl="sm">
+                  <Text size="sm" c="dimmed">
+                    Previous Task IDs:
+                  </Text>
+                  {storedTaskIDs.map((id) => (
+                    <Text key={id} size="sm">
+                      • {id}
+                    </Text>
+                  ))}
+                </Stack>
+              )}
+
               <NumberInput
-                  label="Difficulty Score"
-                  value={expansionDifficulty}
-                  onChange={(val) => setExpansionDifficulty(typeof val === "number" ? val : 0)}
-                  min={1}
-                  max={30}
-                />
+                label="Difficulty Score"
+                value={expansionDifficulty}
+                onChange={(v) => setExpansionDifficulty(Number(v) || 1)}
+                min={1}
+                max={30}
+              />
             </>
           )}
 
+          {/* --------------------------------------------------------------- */}
           <Group mt="sm">
             <Button variant="default" onClick={handleResetDefaults}>
               Reset to Default
@@ -234,7 +319,9 @@ export default function GameSetupScreen() {
           </Group>
         </>
       ) : (
-        <Text mt="md" c="dimmed">Waiting for the host to start the game...</Text>
+        <Text mt="md" c="dimmed">
+          Waiting for the host to start the game…
+        </Text>
       )}
     </Stack>
   );
