@@ -31,6 +31,7 @@ const defaultTaskSettings = {
 const defaultExpansionSettings = {
   playExpansion: false,
   expansionDifficulty: 8,
+  gameVersionValue: "base"
 }
 
 export default function GameSetupScreen() {
@@ -45,7 +46,7 @@ export default function GameSetupScreen() {
   const [playExpansion, setPlayExpansion] = useState(defaultExpansionSettings.playExpansion);
   const [expansionDifficulty, setExpansionDifficulty] = useState<number>(defaultExpansionSettings.expansionDifficulty);
 
-  const [gameVersionValue, setGameVersionValue] = useState('base');
+  const [gameVersionValue, setGameVersionValue] = useState(defaultExpansionSettings.gameVersionValue);
 
   useEffect(() => {
     if (gameVersionValue === "expansion") {
@@ -74,6 +75,7 @@ export default function GameSetupScreen() {
           setSequencedTasks(parsed.sequencedTasks ?? defaultTaskSettings.sequencedTasks);
           setPlayExpansion(parsed.playExpansion ?? defaultExpansionSettings.playExpansion);
           setExpansionDifficulty(parsed.expansionDifficulty ?? defaultExpansionSettings.expansionDifficulty);
+          setGameVersionValue(parsed.gameVersionValue ?? defaultExpansionSettings.gameVersionValue);
         }
       } catch (e) {
         console.warn("Failed to parse task settings from local storage", e);
@@ -90,7 +92,8 @@ export default function GameSetupScreen() {
       orderedTasks,
       sequencedTasks,
       playExpansion,
-      expansionDifficulty
+      expansionDifficulty,
+      gameVersionValue
     };
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
   };
