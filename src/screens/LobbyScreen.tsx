@@ -1,7 +1,7 @@
 import { Button, Divider, Group, Stack, TextInput, Title } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useGameContext } from "../hooks/GameProvider";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { RoomList } from "../components/RoomList";
 
 export default function LobbyScreen() {
@@ -67,6 +67,10 @@ export default function LobbyScreen() {
       <Button size="lg" color="blue" onClick={handleCreate}>Create New Room</Button>
 
       <RoomList displayName={displayName} />
+
+      <Button component={Link} to="/highscores" size="lg" variant="light">
+        View High Scores
+      </Button>
     </Stack>
   );
 }

@@ -99,3 +99,12 @@ export interface GameState {
 
   historyPlayerStats: MapSchema<ColyseusPlayerHistory>;
 }
+
+export interface HighScore {
+  id: number;
+  createdAt: string;
+  players: string[];
+  undoUsed: boolean;
+  tasks: { displayName: string; player: string }[];
+  difficulty: number;
+}
