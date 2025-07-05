@@ -20,8 +20,7 @@ function isSimpleTask(task: BaseTask): task is SimpleTask {
 
 function isExpansionTask(task: BaseTask): task is ExpansionTask {
   return (
-    (task as ExpansionTask).displayName !== undefined &&
-    (task as ExpansionTask).description !== undefined
+    (task as ExpansionTask).displayName !== undefined
   );
 }
 
