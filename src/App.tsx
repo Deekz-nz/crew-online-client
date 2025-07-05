@@ -8,7 +8,9 @@ import GameSetupScreen from "./screens/GameSetupScreen";
 import TaskPhaseScreen from "./screens/TaskPhaseScreen";
 import TrickPhaseScreen from "./screens/TrickPhaseScreen";
 import GameOverScreen from "./screens/GameOverScreen";
+import HighScoresScreen from "./screens/HighScoresScreen";
 import DisconnectModal from "./components/DisconnectModal";
+import { Routes, Route } from "react-router-dom";
 
 function AppContent() {
   const { room, gameStage, disconnectReason, connectionLogs, reconnect } = useGameContext();
@@ -18,7 +20,10 @@ function AppContent() {
   if (!isJoined) {
     screen = (
       <Container>
-        <LobbyScreen />
+        <Routes>
+          <Route path="/highscores" element={<HighScoresScreen />} />
+          <Route path="*" element={<LobbyScreen />} />
+        </Routes>
       </Container>
     );
   } else if (gameStage === "not_started") {
