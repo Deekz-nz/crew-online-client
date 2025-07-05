@@ -9,6 +9,8 @@ import { Card } from "../types";
 import { IconInfoCircle, IconArrowBackUp } from "@tabler/icons-react";
 import { InfoModal } from "../components/InfoModal";
 import { useDisclosure } from "@mantine/hooks";
+import EmojiSendPanel from "../components/EmojiSendPanel";
+import EmojiReceiveArea from "../components/EmojiReceiveArea";
 
 interface PlayerGridLayoutProps {
   gridTemplateAreas: string;
@@ -94,6 +96,11 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
       }}
       p="sm"
     >
+      {/* Emoji Receive Area */}
+      <Box style={{ gridArea: "emoji-receive" }}>
+        <EmojiReceiveArea />
+      </Box>
+
       {/* Other Players' Status */}
       {otherPlayers.map(({ player, gridArea }) => {
         const assignedTasks = tasks.filter(t => t.player === player.sessionId);
@@ -198,6 +205,8 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
           }}
         />
       </Box>
+      {/* Emoji Send Panel */}
+      <Box style={{ gridArea: "emoji-send" }}><EmojiSendPanel /></Box>
 
 
 

@@ -246,6 +246,10 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("give_up");
   }
 
+  const sendEmoji = (emoji: string) => {
+    room?.send("send_emoji", emoji);
+  };
+
   return {
     room,
     joinRoom,
@@ -279,7 +283,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendCancelInterest,
     sendFinishTaskAllocation,
     sendRestartGame,
-    sendGiveUp
+    sendGiveUp,
+    sendEmoji
   };
 };
 
