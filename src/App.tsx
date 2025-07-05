@@ -8,37 +8,44 @@ import GameSetupScreen from "./screens/GameSetupScreen";
 import TaskPhaseScreen from "./screens/TaskPhaseScreen";
 import TrickPhaseScreen from "./screens/TrickPhaseScreen";
 import GameOverScreen from "./screens/GameOverScreen";
+import DisconnectModal from "./components/DisconnectModal";
 
 function AppContent() {
-  const { room, gameStage } = useGameContext();
+  const { room, gameStage, disconnectReason, connectionLogs, reconnect } = useGameContext();
   const isJoined = !!room;
 
+  let screen;
   if (!isJoined) {
-    return (
+    screen = (
       <Container>
         <LobbyScreen />
       </Container>
     );
-  }
-
-  if (gameStage === "not_started") {
-    return (
+  } else if (gameStage === "not_started") {
+    screen = (
       <Container>
         <GameSetupScreen />
       </Container>
     );
+  } else if (gameStage === "game_setup") {
+    screen = <TaskPhaseScreen />;
+  } else if (gameStage === "game_end") {
+    screen = <GameOverScreen />;
+  } else {
+    screen = <TrickPhaseScreen />;
   }
 
-  // Gameplay Phases
-  if (gameStage === "game_setup") {
-    return <TaskPhaseScreen />;
-  }
-
-  if (gameStage === "game_end") {
-    return <GameOverScreen />;
-  }
-  
-  return <TrickPhaseScreen />;
+  return (
+    <>
+      {screen}
+      <DisconnectModal
+        opened={!!disconnectReason}
+        reason={disconnectReason}
+        logs={connectionLogs}
+        onReconnect={reconnect}
+      />
+    </>
+  );
 }
 
 export default function App() {
