@@ -36,6 +36,15 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [commanderPlayer, setCommanderPlayer] = useState("");
   const [playerHistoryStats, setPlayerHistoryStats] = useState<FrontendHistoryStats>({});
 
+  const [disconnectReason, setDisconnectReason] = useState<string | null>(null);
+  const [connectionLogs, setConnectionLogs] = useState<string[]>([]);
+
+  const addLog = (msg: string) => {
+    const entry = `${new Date().toISOString()} ${msg}`;
+    console.log(entry);
+    setConnectionLogs(logs => [...logs.slice(-19), entry]);
+  };
+
   const syncState = (state: GameState, sessionId: string) => {
     if (!state || !state.players) return;
     const updatedPlayers: Player[] = [];
@@ -103,13 +112,15 @@ export const useGameRoom = (client: Colyseus.Client) => {
     const roomCode = generateRoomCode();
     try {
       const token = import.meta.env.VITE_SHARED_SECRET;
+      addLog(`Creating room ${roomCode}`);
       const createdRoom = await client.create<GameState>("crew", { displayName, token, roomCode });
       setRoom(createdRoom);
       localStorage.setItem("roomId", createdRoom.roomId);
       localStorage.setItem("reconnectionToken", createdRoom.reconnectionToken);
       setupRoomListeners(createdRoom);
+      setDisconnectReason(null);
     } catch (err) {
-      console.error("Failed to create room:", err);
+      addLog(`Failed to create room: ${err}`);
     }
   };
 
@@ -122,6 +133,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   
     // ✅ Attempt reconnect if same room and reconnectionToken exists
     if (roomCode === savedRoomId && reconnectionToken) {
+      addLog(`Attempting to reconnect to room ${roomCode}`);
       try {
         const rejoinedRoom = await client.reconnect(reconnectionToken) as Colyseus.Room<GameState>;
         setRoom(rejoinedRoom);
@@ -129,39 +141,52 @@ export const useGameRoom = (client: Colyseus.Client) => {
 
         // 🔥 SAVE the new reconnectionToken!
         localStorage.setItem("reconnectionToken", rejoinedRoom.reconnectionToken);
-        console.log("Reconnected successfully to room:", roomCode);
+        addLog(`Reconnected successfully to room ${roomCode}`);
         return; // ✅ Exit early, no need to join again
       } catch (err) {
-        console.warn("Reconnect failed, falling back to join:", err);
+        addLog(`Reconnect failed, falling back to join: ${err}`);
         // Clear stale token
         localStorage.removeItem("reconnectionToken");
         localStorage.removeItem("roomId");
       }
     }
-  
+
     // 🔄 Regular join fallback
     try {
+      addLog(`Joining room ${roomCode}`);
       const joinedRoom = await client.joinById<GameState>(roomCode, { displayName, token: sharedToken });
       setRoom(joinedRoom);
       localStorage.setItem("roomId", joinedRoom.roomId);
       localStorage.setItem("reconnectionToken", joinedRoom.reconnectionToken);
       setupRoomListeners(joinedRoom);
-      console.log("Joined room:", roomCode);
+      addLog(`Joined room ${roomCode}`);
+      setDisconnectReason(null);
     } catch (err) {
-      console.error("Failed to join room:", err);
+      addLog(`Failed to join room: ${err}`);
     }
   };
   
   // The main method responsible for syncing the backend state to the frontend
   const setupRoomListeners = (joinedRoom: Colyseus.Room<GameState>) => {
+    addLog(`Setting up listeners for room ${joinedRoom.id}`);
     syncState(joinedRoom.state, joinedRoom.sessionId);
 
     joinedRoom.onStateChange((state: GameState) => {
       syncState(state, joinedRoom.sessionId);
     });
 
+    joinedRoom.onError((code, message) => {
+      addLog(`Room error ${code} ${message}`);
+    });
+
+    joinedRoom.onLeave((code) => {
+      addLog(`Left room with code ${code}`);
+      setDisconnectReason(`code ${code}`);
+      setRoom(null);
+    });
+
     joinedRoom.onMessage("room_closed", (message) => {
-      console.log("Room closed due to:", message.reason);
+      addLog(`Room closed due to ${message.reason}`);
       // Show notification or redirect
     });
   };
@@ -250,6 +275,14 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("send_emoji", emoji);
   };
 
+  const reconnect = () => {
+    const displayName = localStorage.getItem("displayName") || "";
+    const roomId = localStorage.getItem("roomId") || "";
+    if (displayName && roomId) {
+      joinRoom(displayName, roomId);
+    }
+  };
+
   return {
     room,
     joinRoom,
@@ -284,7 +317,10 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendFinishTaskAllocation,
     sendRestartGame,
     sendGiveUp,
-    sendEmoji
+    sendEmoji,
+    disconnectReason,
+    connectionLogs,
+    reconnect
   };
 };
 
