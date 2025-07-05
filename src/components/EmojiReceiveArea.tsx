@@ -17,23 +17,28 @@ interface EmojiPayload {
   sentAt: number;
 }
 
+interface EmojiWithPosition extends EmojiPayload {
+  leftOffset: number;
+}
+
 const DISPLAY_MS = 1_000;  // how long each bubble stays on-screen
 const MOVE_PX   = 120;     // how far it drifts down
 
 export default function EmojiReceiveArea() {
   const { room } = useGameContext();
-  const [messages, setMessages] = useState<EmojiPayload[]>([]);
+  const [messages, setMessages] = useState<EmojiWithPosition[]>([]);
 
   /** stable helper so Strict Mode doesn’t duplicate listeners */
   const handleIncoming = useCallback((payload: EmojiPayload) => {
     const id = `${payload.from}-${payload.sentAt}`;
 
-    // add the message only if we have not seen it yet
-    setMessages(prev =>
-      prev.some(m => `${m.from}-${m.sentAt}` === id) ? prev : [...prev, payload]
-    );
+    setMessages(prev => {
+      if (prev.some(m => `${m.from}-${m.sentAt}` === id)) return prev;
 
-    // schedule its removal
+      const leftOffset = Math.floor(Math.random() * 80); // 10%–90%
+      return [...prev, { ...payload, leftOffset }];
+    });
+
     setTimeout(() => {
       setMessages(prev =>
         prev.filter(m => `${m.from}-${m.sentAt}` !== id)
@@ -59,17 +64,18 @@ export default function EmojiReceiveArea() {
             transition={{ duration: DISPLAY_MS / 1000 }}
             style={{
               position: "absolute",
-              left: 0,
+              left: `${msg.leftOffset}%`,
               marginLeft: "0.75rem",
               fontSize: "1.25rem",
               whiteSpace: "nowrap",
+              justifyItems: "center",
             }}
           >
-            <Text fw={700}>
-              {msg.name}:{" "}
-              <span style={{ fontSize: "2.25rem" }}>
+            <Text fw={700} ta="center">
+              {msg.name}
+            </Text>
+            <Text style={{ fontSize: "2.25rem" }}>
                 {EMOJI_MAP[msg.emoji] ?? msg.emoji}
-              </span>
             </Text>
           </motion.div>
         ))}
@@ -77,3 +83,4 @@ export default function EmojiReceiveArea() {
     </Box>
   );
 }
+
