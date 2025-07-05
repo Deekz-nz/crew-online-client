@@ -44,17 +44,7 @@ export default function EmojiReceiveArea() {
   /* subscribe / unsubscribe exactly once per room instance */
   useEffect(() => {
     if (!room) return;
-
     room.onMessage("player_emoji", handleIncoming);
-
-    return () => {
-      // Colyseus ≥ 0.15 has offMessage; fall back to onMessage(undefined) otherwise
-      if (typeof (room as any).offMessage === "function") {
-        (room as any).offMessage("player_emoji", handleIncoming);
-      } else {
-        room.onMessage("player_emoji", undefined as any);
-      }
-    };
   }, [room, handleIncoming]);
 
   return (
