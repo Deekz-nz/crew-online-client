@@ -168,7 +168,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   
   // The main method responsible for syncing the backend state to the frontend
   const setupRoomListeners = (joinedRoom: Colyseus.Room<GameState>) => {
-    addLog(`Setting up listeners for room ${joinedRoom.id}`);
+    addLog(`Setting up listeners for room ${joinedRoom.roomId}`);
     syncState(joinedRoom.state, joinedRoom.sessionId);
 
     joinedRoom.onStateChange((state: GameState) => {
