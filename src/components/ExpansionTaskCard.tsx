@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { ExpansionTask } from '../types';
-import { Avatar, Text, Rating, Button, Modal } from '@mantine/core';
+import { Avatar, Text, Rating, Button, Modal, Stack } from '@mantine/core';
 import { useGameContext } from '../hooks/GameProvider';
 import { ColorizedTaskTitle } from './ColourTaskTitle';
 
@@ -69,83 +69,84 @@ export const ExpansionTaskCard: React.FC<ExpansionTaskCardProps> = ({
 
   return (
     <>
-      <div
-        style={{
-          position: 'relative',
-          width,
-          height: wrapperHeight,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          background: 'linear-gradient(135deg, #cbe6f5 0%, #f2f2f2 100%)',
-          border: '4px solid',
-          borderColor: isInterested && !task.player ? 'green' : 'white',
-          borderRadius: 16,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          padding: 2,
-          boxSizing: 'border-box',
-          cursor: 'pointer',
-          opacity: completed || failed ? 0.6 : 1,
-          transition: 'transform 0.15s ease, filter 0.15s ease',
-          overflow: 'hidden',
-        }}
-        onClick={handleClick}
-      >
-        <ColorizedTaskTitle text={displayName} size={textSize} />
-
-        {(completed || failed) && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              pointerEvents: 'none',
-            }}
-          >
-            {completed && (
-              <Avatar radius="xl" size={width * 0.4} color="green" variant="filled">
-                <IconCheck size={width * 0.25} stroke={2} />
-              </Avatar>
-            )}
-            {failed && (
-              <Avatar radius="xl" size={width * 0.4} color="red" variant="filled">
-                <IconX size={width * 0.25} stroke={2} />
-              </Avatar>
-            )}
-          </div>
-        )}
-
+      <Stack gap="xs" align="center">      
         {ownerDisplayName && (
-          <div style={{ marginTop: 8, fontSize: '0.85rem', color: '#222', textAlign: 'center' }}>
+          <Text>
             {ownerDisplayName}
-          </div>
+          </Text>
         )}
+        <div
+          style={{
+            position: 'relative',
+            width,
+            height: wrapperHeight,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            background: 'linear-gradient(135deg, #cbe6f5 0%, #f2f2f2 100%)',
+            border: '4px solid',
+            borderColor: isInterested && !task.player ? 'green' : 'white',
+            borderRadius: 16,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            padding: 2,
+            boxSizing: 'border-box',
+            cursor: 'pointer',
+            opacity: completed || failed ? 0.6 : 1,
+            transition: 'transform 0.15s ease, filter 0.15s ease',
+            overflow: 'hidden',
+          }}
+          onClick={handleClick}
+        >
+          <ColorizedTaskTitle text={displayName} size={textSize} />
 
-        {task.interestedPlayers?.length && !task.player ? (
-          <Avatar
-            // use a pixel number so the circle scales with card width
-            size={width * 0.25}          // tweak the 0.38 ratio to taste
-            radius="xl"                  // fully round
-            variant="filled"
-            color="green"
-            p={2}
-            style={{
-              position: 'absolute',
-              bottom: 4,
-              right: 4,
-              // keep text nicely centred & readable
-              fontSize: width * 0.18,
-              fontWeight: 600,
-              lineHeight: 1,
-              pointerEvents: 'none',     // so clicks fall through to the card
-            }}
-          >
-            {task.interestedPlayers.length}
-          </Avatar>
-        ) : null}
-      </div>
+          {(completed || failed) && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                pointerEvents: 'none',
+              }}
+            >
+              {completed && (
+                <Avatar radius="xl" size={width * 0.4} color="green" variant="filled">
+                  <IconCheck size={width * 0.25} stroke={2} />
+                </Avatar>
+              )}
+              {failed && (
+                <Avatar radius="xl" size={width * 0.4} color="red" variant="filled">
+                  <IconX size={width * 0.25} stroke={2} />
+                </Avatar>
+              )}
+            </div>
+          )}
+
+          {task.interestedPlayers?.length && !task.player ? (
+            <Avatar
+              // use a pixel number so the circle scales with card width
+              size={width * 0.25}          // tweak the 0.38 ratio to taste
+              radius="xl"                  // fully round
+              variant="filled"
+              color="green"
+              p={2}
+              style={{
+                position: 'absolute',
+                bottom: 4,
+                right: 4,
+                // keep text nicely centred & readable
+                fontSize: width * 0.18,
+                fontWeight: 600,
+                lineHeight: 1,
+                pointerEvents: 'none',     // so clicks fall through to the card
+              }}
+            >
+              {task.interestedPlayers.length}
+            </Avatar>
+          ) : null}
+        </div>
+      </Stack>
 
       <Modal
         opened={opened}

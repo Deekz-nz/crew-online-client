@@ -105,6 +105,6 @@ export interface HighScore {
   createdAt: string;
   players: string[];
   undoUsed: boolean;
-  tasks: { displayName: string; player: string }[];
+  tasks: { displayName: string; player: string, taskId: string, evaluationDescription: string, difficulty: number }[];
   difficulty: number;
 }
