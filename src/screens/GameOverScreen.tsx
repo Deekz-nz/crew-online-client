@@ -16,6 +16,8 @@ export default function GameOverScreen() {
     sendRestartGame,
     gameSucceeded,
     playerHistoryStats,
+    playExpansion,
+    expansionDifficulty,
   } = useGameContext();
 
   const [showRecap, setShowRecap] = useState(false);
@@ -41,6 +43,8 @@ export default function GameOverScreen() {
   const handleRestart = () => {
     sendRestartGame();
   }
+
+  const allocatedTitle = playExpansion ? `Allocated Task (Difficulty: ${expansionDifficulty})` : "Allocated Tasks";
 
   return (
     <motion.div
@@ -147,7 +151,7 @@ export default function GameOverScreen() {
               transition={{ duration: 0.5 }}
               style={{ width: "100%" }}
             >
-              <Title order={2} mb="lg" ta="center">Allocated Tasks</Title>
+              <Title order={2} mb="lg" ta="center">{allocatedTitle}</Title>
 
               <Box mb="xl">
                 <Box style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center' }}>

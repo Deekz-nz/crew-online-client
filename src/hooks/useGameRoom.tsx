@@ -39,6 +39,9 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [disconnectReason, setDisconnectReason] = useState<string | null>(null);
   const [connectionLogs, setConnectionLogs] = useState<string[]>([]);
 
+  const [playExpansion, setPlayExpansion] = useState(false);
+  const [expansionDifficulty, setExpansionDifficulty] = useState<number>(0);
+
   const addLog = (msg: string) => {
     const entry = `${new Date().toISOString()} ${msg}`;
     console.log(entry);
@@ -95,6 +98,9 @@ export const useGameRoom = (client: Colyseus.Client) => {
     setExpectedTrickCount(state.expectedTrickCount);
     setGameFinished(state.gameFinished);
     setGameSucceeded(state.gameSucceeded);
+
+    setPlayExpansion(state.playExpansion);
+    setExpansionDifficulty(state.expansionDifficulty);
 
     const historyStats: Record<string, { cards: Card[]; tasks: SimpleTask[] }> = {};
     state.historyPlayerStats.forEach((history, playerId) => {
@@ -304,6 +310,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
     gameFinished,
     gameSucceeded,
     playerHistoryStats,
+    playExpansion,
+    expansionDifficulty,
     setCommunicateMode,
     startGame,
     sendPlayCard,

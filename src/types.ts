@@ -81,6 +81,7 @@ export interface GameState {
   gameStarted: boolean;
 
   playExpansion: boolean;
+  expansionDifficulty: number;
 
   players: MapSchema<Player>;           // Colyseus MapSchema
   playerOrder: ArraySchema<string>;     // Colyseus ArraySchema
