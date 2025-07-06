@@ -1,6 +1,7 @@
 /* src/components/highScoreItem.tsx */
 import { useMemo } from "react";
 import {
+  Box,
   Card,
   Divider,
   Group,
@@ -17,19 +18,15 @@ export function HighScoreItem({ score }: { score: HighScore }) {
   const { createdAt, players, difficulty, undoUsed, tasks } = score;
   const [opened, { open, close }] = useDisclosure(false);
 
-  /** alphabetical, comma-separated player line */
-  const playerLine = useMemo(
-    () => [...players].sort().join(", "),
-    [players]
-  );
+  /* alphabetical player list */
+  const playerLine = useMemo(() => [...players].sort().join(", "), [players]);
 
-  /** convert stored tasks → ExpansionTask stubs for TaskCard */
+  /* HighScore-task → ExpansionTask stubs (just enough for TaskCard) */
   const expansionTasks: ExpansionTask[] = useMemo(
     () =>
       tasks.map((t) => ({
         taskId: t.taskId,
         player: t.player,
-        /* placeholders / defaults                            */
         failed: false,
         completed: false,
         completedAtTrickIndex: undefined,
@@ -42,10 +39,19 @@ export function HighScoreItem({ score }: { score: HighScore }) {
     [tasks]
   );
 
-  /* ───────────────────── render ───────────────────── */
+  /* group those tasks by player for the modal layout */
+  const tasksByPlayer = useMemo(() => {
+    const map: Record<string, ExpansionTask[]> = {};
+    expansionTasks.forEach((t) => {
+      if (!map[t.player]) map[t.player] = [];
+      map[t.player].push(t);
+    });
+    return map;
+  }, [expansionTasks]);
+
+  /* ───────────────── summary card ───────────────── */
   return (
     <>
-      {/* summary card (click to open) */}
       <Card
         withBorder
         radius="md"
@@ -75,7 +81,7 @@ export function HighScoreItem({ score }: { score: HighScore }) {
         </Group>
       </Card>
 
-      {/* detail modal */}
+      {/* ───────────────── detail modal ───────────────── */}
       <Modal
         opened={opened}
         onClose={close}
@@ -84,11 +90,14 @@ export function HighScoreItem({ score }: { score: HighScore }) {
         centered
       >
         <Stack gap="sm">
-          {/* headline details */}
           <Group gap="xs">
             <Text fw={600}>Players:</Text>
             <Text>{playerLine}</Text>
           </Group>
+
+          <Text fw={600}>
+            Total Difficulty: {difficulty}
+          </Text>
 
           <Group gap="xs">
             <Text fw={600}>Date / time:</Text>
@@ -102,17 +111,54 @@ export function HighScoreItem({ score }: { score: HighScore }) {
 
           <Divider my="sm" />
 
-          {/* tasks list */}
-          <Group gap="sm">
-            {expansionTasks.map((t) => (
-              <TaskCard
-                key={t.taskId}
-                task={t}
-                size="lg"
-                ownerDisplayName={t.player}
-              />
-            ))}
-          </Group>
+          {/* tasks grouped by owner */}
+          <Box
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "30px",
+              justifyContent: "center",
+            }}
+          >
+            {Object.entries(tasksByPlayer).map(([playerId, playerTasks]) =>
+              playerTasks.length ? (
+                <Box
+                  key={playerId}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "10px",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {playerTasks.map((task) => (
+                      <TaskCard
+                        key={task.taskId}
+                        task={task}
+                        size="lg"
+                        disabled
+                      />
+                    ))}
+                  </Box>
+                  <Text
+                    size="md"
+                    fw={600}
+                    mt="sm"
+                    ta="center"
+                  >
+                    {playerId}
+                  </Text>
+                </Box>
+              ) : null
+            )}
+          </Box>
         </Stack>
       </Modal>
     </>
