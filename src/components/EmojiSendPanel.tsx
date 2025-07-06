@@ -6,6 +6,8 @@ const EMOJIS: { label: string; symbol: string }[] = [
   { label: "PARTY", symbol: "🎉" },
   { label: "CONFUSED", symbol: "❓" },
   { label: "LOVE", symbol: "❤" },
+  { label: "PEEK", symbol: "🫣"},
+  { label: "LAUGH", symbol: "😂"}
 ];
 
 export default function EmojiSendPanel() {
@@ -17,7 +19,7 @@ export default function EmojiSendPanel() {
         <Button
           key={label}
           variant="outline"
-          size="md"
+          size="xl"
           onClick={() => sendEmoji(label)}
           style={{ fontSize: "1.5rem", padding: 4 }}
         >

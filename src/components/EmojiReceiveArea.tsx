@@ -8,6 +8,8 @@ const EMOJI_MAP: Record<string, string> = {
   PARTY: "🎉",
   CONFUSED: "❓",
   LOVE: "❤",
+  PEEK: "🫣",
+  LAUGH: "😂"
 };
 
 interface EmojiPayload {
