@@ -35,16 +35,16 @@ export default function HighScoresScreen() {
   }, [httpUrl]);
 
   /** POST (debug) */
-  const addRandomScore = async () => {
-    try {
-      const res = await fetch(`${httpUrl}/highscores/random`, {
-        method: "POST",
-      });
-      if (res.ok) await fetchScores();
-    } catch (err) {
-      console.error("Failed to create random highscore", err);
-    }
-  };
+  // const addRandomScore = async () => {
+  //   try {
+  //     const res = await fetch(`${httpUrl}/highscores/random`, {
+  //       method: "POST",
+  //     });
+  //     if (res.ok) await fetchScores();
+  //   } catch (err) {
+  //     console.error("Failed to create random highscore", err);
+  //   }
+  // };
 
   useEffect(() => {
     fetchScores();
@@ -73,11 +73,8 @@ export default function HighScoresScreen() {
     <Stack p="md" gap="md">
       {/* Top-left controls */}
       <Group gap="xs">
-        <Button component={Link} to="/" variant="light" size="sm">
+        <Button component={Link} to="/" variant="light" size="lg">
           ← Lobby
-        </Button>
-        <Button onClick={addRandomScore} variant="light" size="sm">
-          + Random
         </Button>
       </Group>
 
@@ -99,12 +96,13 @@ export default function HighScoresScreen() {
             { label: "Four", value: "4" },
             { label: "Five", value: "5" },
           ]}
-          size="sm"
+          size="lg"
         />
         <Checkbox
           label="Include games with Undo"
           checked={includeUndo}
           onChange={(e) => setIncludeUndo(e.currentTarget.checked)}
+          size="lg"
         />
       </Group>
 
