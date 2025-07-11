@@ -5,11 +5,12 @@ interface DisconnectModalProps {
   reason?: string | null;
   logs: string[];
   onReconnect: () => void;
+  onClose: () => void;
 }
 
-export default function DisconnectModal({ opened, reason, logs, onReconnect }: DisconnectModalProps) {
+export default function DisconnectModal({ opened, reason, logs, onReconnect, onClose }: DisconnectModalProps) {
   return (
-    <Modal opened={opened} onClose={() => {}} title="Connection Lost" centered closeOnClickOutside={false} closeOnEscape={false}>
+    <Modal opened={opened} onClose={onClose} title="Connection Lost" centered>
       <Stack>
         <Text c="red" fw={600}>Disconnected{reason ? `: ${reason}` : ''}</Text>
         {logs.length > 0 && (

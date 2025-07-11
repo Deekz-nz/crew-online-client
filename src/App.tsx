@@ -13,7 +13,7 @@ import DisconnectModal from "./components/DisconnectModal";
 import { Routes, Route } from "react-router-dom";
 
 function AppContent() {
-  const { room, gameStage, disconnectReason, connectionLogs, reconnect } = useGameContext();
+  const { room, gameStage, disconnectReason, connectionLogs, reconnect, clearDisconnectReason } = useGameContext();
   const isJoined = !!room;
 
   let screen;
@@ -48,6 +48,7 @@ function AppContent() {
         reason={disconnectReason}
         logs={connectionLogs}
         onReconnect={reconnect}
+        onClose={clearDisconnectReason}
       />
     </>
   );
