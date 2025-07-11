@@ -281,7 +281,14 @@ export const useGameRoom = (client: Colyseus.Client) => {
     room?.send("send_emoji", emoji);
   };
 
+  const clearDisconnectReason = () => setDisconnectReason(null);
+
   const reconnect = () => {
+    if (room) {
+      // If already connected just close the modal
+      setDisconnectReason(null);
+      return;
+    }
     const displayName = localStorage.getItem("displayName") || "";
     const roomId = localStorage.getItem("roomId") || "";
     if (displayName && roomId) {
@@ -326,6 +333,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     sendRestartGame,
     sendGiveUp,
     sendEmoji,
+    clearDisconnectReason,
     disconnectReason,
     connectionLogs,
     reconnect
