@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as Colyseus from "colyseus.js";
 import { GameState, Player, Card, SimpleTask, Trick, CommunicationRank, FrontendHistoryStats, BaseTask } from "../types";
 import { notifications } from "@mantine/notifications";
@@ -47,6 +47,17 @@ export const useGameRoom = (client: Colyseus.Client) => {
     console.log(entry);
     setConnectionLogs(logs => [...logs.slice(-19), entry]);
   };
+
+  useEffect(() => {
+    const handleOnline = () => addLog("Browser online");
+    const handleOffline = () => addLog("Browser offline");
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const syncState = (state: GameState, sessionId: string) => {
     if (!state || !state.players) return;
@@ -195,6 +206,19 @@ export const useGameRoom = (client: Colyseus.Client) => {
       addLog(`Room closed due to ${message.reason}`);
       // Show notification or redirect
     });
+
+    const ws: WebSocket | undefined = (joinedRoom as any)?.connection?.transport?.ws;
+    if (ws) {
+      ws.addEventListener("open", () => {
+        addLog("WebSocket open");
+      });
+      ws.addEventListener("close", (event) => {
+        addLog(`WebSocket closed code=${event.code} reason=${event.reason} clean=${event.wasClean}`);
+      });
+      ws.addEventListener("error", (event) => {
+        addLog(`WebSocket error: ${event.type}`);
+      });
+    }
   };
 
   const isMyTurn = room?.sessionId === currentPlayer;
