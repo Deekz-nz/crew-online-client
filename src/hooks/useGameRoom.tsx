@@ -213,10 +213,10 @@ export const useGameRoom = (client: Colyseus.Client) => {
         addLog("WebSocket open");
       });
       ws.addEventListener("close", (event) => {
-        addLog(`WebSocket closed code=${event.code} reason=${event.reason} clean=${event.wasClean}`);
+        addLog(`WebSocket closed code=${event.code} reason=${event.reason} clean=${event.wasClean} FULLEVENT=${JSON.stringify(event)}`);
       });
       ws.addEventListener("error", (event) => {
-        addLog(`WebSocket error: ${event.type}`);
+        addLog(`WebSocket error: ${event.type} FULLEVENT=${JSON.stringify(event)}`);
       });
     }
   };
