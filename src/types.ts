@@ -116,4 +116,8 @@ export type SettingValue = boolean | string | number;
 
 export interface UserSettings {
   confirmWhenPlayingCard: boolean;
+  cardHoverScale: number;
+  showReactionPanel: boolean;
+  handCardSize: number;
+  communicateCardSize: number;
 }

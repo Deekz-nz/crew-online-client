@@ -10,6 +10,10 @@ export const useUserSettings = create<UserSettingsStore>()(
   persist(
     set => ({
       confirmWhenPlayingCard: false,
+      cardHoverScale: 1.2,
+      showReactionPanel: true,
+      handCardSize: 120,
+      communicateCardSize: 80,
       setSetting: (key, value) =>
         set(() => ({ [key]: value } as Partial<UserSettings>)),
     }),

@@ -1,5 +1,5 @@
 // components/SettingsModal.tsx
-import { Modal, Stack, Text, Divider, Switch } from '@mantine/core';
+import { Modal, Stack, Text, Divider, Switch, NumberInput } from '@mantine/core';
 import { useUserSettings } from '../hooks/useUserSettings';
 
 export interface SettingsModalProps {
@@ -9,6 +9,10 @@ export interface SettingsModalProps {
 
 export function SettingsModal({ opened, onClose }: SettingsModalProps) {
   const confirmWhenPlayingCard = useUserSettings(s => s.confirmWhenPlayingCard);
+  const cardHoverScale = useUserSettings(s => s.cardHoverScale);
+  const showReactionPanel = useUserSettings(s => s.showReactionPanel);
+  const handCardSize = useUserSettings(s => s.handCardSize);
+  const communicateCardSize = useUserSettings(s => s.communicateCardSize);
   const setSetting = useUserSettings(s => s.setSetting);
 
   return (
@@ -23,10 +27,35 @@ export function SettingsModal({ opened, onClose }: SettingsModalProps) {
         />
         <Divider />
 
-        {/* Future settings go here
         <Text fw={700}>Display</Text>
-        <Switch label="Show card hints" />
-        */}
+        <NumberInput
+          label="Card hover scale"
+          value={cardHoverScale}
+          onChange={(v) => setSetting('cardHoverScale', Number(v) || 1.2)}
+          min={1}
+          max={2}
+          step={0.1}
+        />
+        <Switch
+          checked={showReactionPanel}
+          onChange={(e) => setSetting('showReactionPanel', e.currentTarget.checked)}
+          label="Show reaction panel"
+          aria-label="Show reaction panel"
+        />
+        <NumberInput
+          label="Hand card size"
+          value={handCardSize}
+          onChange={(v) => setSetting('handCardSize', Number(v) || 120)}
+          min={80}
+          max={200}
+        />
+        <NumberInput
+          label="Communicated card size"
+          value={communicateCardSize}
+          onChange={(v) => setSetting('communicateCardSize', Number(v) || 80)}
+          min={60}
+          max={160}
+        />
       </Stack>
     </Modal>
   );
