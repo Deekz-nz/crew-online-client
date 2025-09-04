@@ -7,6 +7,7 @@ import {
   IconRocket,
 } from '@tabler/icons-react';
 import { Card } from '../types';
+import { useUserSettings } from '../hooks/useUserSettings';
 
 interface GameCardProps {
   card: Card;
@@ -37,6 +38,7 @@ const iconMap = {
 
 export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = true, onClick, disabled, showHoverAnimation, faded }) => {
   const { color, number } = card;
+  const cardHoverScale = useUserSettings(s => s.cardHoverScale);
   const { background, dark } = colorStyles[color];
   const IconComponent = iconMap[color];
   const height = size *  1.4; // Aspect ratio 5:7 for cards
@@ -67,9 +69,9 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
     opacity: faded ? 0.5 : 1,
   };
   
-  const shiftUp = size * 1.4 * 0.25; // 25% of height
+  const shiftUp = size * 1.4 * 0.25;
   const cardHoverStyle: React.CSSProperties = {
-    transform: `scale(1.4) translateY(-${shiftUp}px)`,
+    transform: `scale(${cardHoverScale}) translateY(-${shiftUp}px)`,
     filter: 'brightness(1.05)',
   };
 

@@ -61,6 +61,9 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
   const [infoOpened, { open: openInfo, close: closeInfo }] = useDisclosure(false);
   const [settingsOpened, { open: openSettings, close: closeSettings }] = useDisclosure(false);
   const confirmWhenPlayingCard = useUserSettings(s => s.confirmWhenPlayingCard);
+  const showReactionPanel = useUserSettings(s => s.showReactionPanel);
+  const handCardSize = useUserSettings(s => s.handCardSize);
+  const communicateCardSize = useUserSettings(s => s.communicateCardSize);
   
   if (!activePlayer || !room || !playerOrder.length) return null;
 
@@ -125,7 +128,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
             <PlayerStatus
               player={player}
               assignedTasks={assignedTasks}
-              communicateWidth={80}
+              communicateWidth={communicateCardSize}
               taskSize="md"
               textSize="xl"
               isCommander={commanderPlayer === player.sessionId}
@@ -138,7 +141,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
       <Center style={{ gridArea: "active-comm" }}>
       <CommunicatedCard
         player={activePlayer}
-        width={80}
+        width={communicateCardSize}
         onClick={() => {
           // Only allow if stage is trick_start or trick_end AND not already communicated
           const canCommunicate =
@@ -199,7 +202,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
 
         <GameHand
           hand={hand}
-          cardWidth={120}
+          cardWidth={handCardSize}
           overlap
           disabled={(!isMyTurn || someoneCommunicating) && !communicateMode}
           onCardClick={(card) => {
@@ -226,7 +229,9 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
         />
       </Box>
       {/* Emoji Send Panel */}
-      <Box style={{ gridArea: "emoji-send" }}><EmojiSendPanel /></Box>
+      {showReactionPanel && (
+        <Box style={{ gridArea: "emoji-send" }}><EmojiSendPanel /></Box>
+      )}
 
 
 
