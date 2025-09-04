@@ -55,7 +55,7 @@ export function RoomList({ displayName }: RoomListProps) {
               {room.clients}/{room.maxClients}
             </Text>
           </Group>
-          <Button mt="sm" fullWidth onClick={() => handleJoin(room.roomId)} loading={joinPending} disabled={joinPending}>
+          <Button size="xl" mt="sm" fullWidth onClick={() => handleJoin(room.roomId)} loading={joinPending} disabled={joinPending}>
             Join Room
           </Button>
         </Card>

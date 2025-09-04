@@ -64,7 +64,7 @@ export default function LobbyScreen() {
 
       <Divider label="or" labelPosition="center" w={inputGroupWidth} />
 
-      <Button size="lg" color="blue" onClick={handleCreate}>Create New Room</Button>
+      <Button size="xl" color="blue" onClick={handleCreate}>Create New Room</Button>
 
       <RoomList displayName={displayName} />
 
