@@ -291,6 +291,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
   };
 
   const sendFinishTaskAllocation = () => {
+    const previousTaskIDs = tasks.map(task => task.taskId);
+    localStorage.setItem(LS_PREVIOUS_TASKS, JSON.stringify(previousTaskIDs));
     room?.send("finish_task_allocation");
   };
 
