@@ -14,7 +14,7 @@ interface RoomListProps {
 }
 
 export function RoomList({ displayName }: RoomListProps) {
-  const { joinRoom } = useGameContext();
+  const { joinRoom, joinPending } = useGameContext();
   const [rooms, setRooms] = useState<AvailableRoom[]>([]);
 
   const fetchRooms = async () => {
@@ -55,7 +55,7 @@ export function RoomList({ displayName }: RoomListProps) {
               {room.clients}/{room.maxClients}
             </Text>
           </Group>
-          <Button mt="sm" fullWidth onClick={() => handleJoin(room.roomId)}>
+          <Button mt="sm" fullWidth onClick={() => handleJoin(room.roomId)} loading={joinPending} disabled={joinPending}>
             Join Room
           </Button>
         </Card>

@@ -5,7 +5,7 @@ import { useLocation, Link } from "react-router-dom";
 import { RoomList } from "../components/RoomList";
 
 export default function LobbyScreen() {
-  const { joinRoom, createRoom } = useGameContext();
+  const { joinRoom, createRoom, joinPending } = useGameContext();
   const location = useLocation();
 
   const [displayName, setDisplayName] = useState(() => {
@@ -59,7 +59,7 @@ export default function LobbyScreen() {
           flex="1"
           label="Room code"
         />
-        <Button size="lg" onClick={handleJoin}>Join</Button>
+        <Button size="lg" onClick={handleJoin} loading={joinPending} disabled={joinPending}>Join</Button>
       </Group>
 
       <Divider label="or" labelPosition="center" w={inputGroupWidth} />

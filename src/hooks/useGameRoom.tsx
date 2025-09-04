@@ -35,6 +35,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   const [gameSucceeded, setGameSucceeded] = useState(false);
   const [commanderPlayer, setCommanderPlayer] = useState("");
   const [playerHistoryStats, setPlayerHistoryStats] = useState<FrontendHistoryStats>({});
+  const [joinPending, setJoinPending] = useState(false);
 
   const [disconnectReason, setDisconnectReason] = useState<string | null>(null);
   const [connectionLogs, setConnectionLogs] = useState<string[]>([]);
@@ -147,6 +148,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
     const sharedToken = import.meta.env.VITE_SHARED_SECRET;
     const savedRoomId = localStorage.getItem("roomId");
     const reconnectionToken = localStorage.getItem("reconnectionToken");
+    setJoinPending(true);
   
     // ✅ Attempt reconnect if same room and reconnectionToken exists
     if (roomCode === savedRoomId && reconnectionToken) {
@@ -159,6 +161,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
         // 🔥 SAVE the new reconnectionToken!
         localStorage.setItem("reconnectionToken", rejoinedRoom.reconnectionToken);
         addLog(`Reconnected successfully to room ${roomCode}`);
+        setJoinPending(false);
         return; // ✅ Exit early, no need to join again
       } catch (err) {
         addLog(`Reconnect failed, falling back to join: ${err}`);
@@ -180,6 +183,8 @@ export const useGameRoom = (client: Colyseus.Client) => {
       setDisconnectReason(null);
     } catch (err) {
       addLog(`Failed to join room: ${err}`);
+    } finally {
+       setJoinPending(false);
     }
   };
   
@@ -328,6 +333,7 @@ export const useGameRoom = (client: Colyseus.Client) => {
   return {
     room,
     joinRoom,
+    joinPending,
     createRoom,
     players,
     playerOrder,

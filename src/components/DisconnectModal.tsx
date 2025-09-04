@@ -6,9 +6,10 @@ interface DisconnectModalProps {
   logs: string[];
   onReconnect: () => void;
   onClose: () => void;
+  joinPending: boolean;
 }
 
-export default function DisconnectModal({ opened, reason, logs, onReconnect, onClose }: DisconnectModalProps) {
+export default function DisconnectModal({ opened, reason, logs, onReconnect, onClose, joinPending }: DisconnectModalProps) {
   return (
     <Modal opened={opened} onClose={onClose} title="Connection Lost" centered>
       <Stack>
@@ -16,7 +17,7 @@ export default function DisconnectModal({ opened, reason, logs, onReconnect, onC
         {logs.length > 0 && (
           <Code block>{logs.join('\n')}</Code>
         )}
-        <Button mt="sm" onClick={onReconnect}>Reconnect</Button>
+        <Button mt="sm" onClick={onReconnect} loading={joinPending} disabled={joinPending}>Reconnect</Button>
       </Stack>
     </Modal>
   );
