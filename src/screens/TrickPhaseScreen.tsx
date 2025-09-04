@@ -172,7 +172,7 @@ export default function TrickPhaseScreen() {
       {allCardsPlayed && (
         <Center style={{ gridArea: "center" }}>
           {isTrickWinner ? (
-            <Button onClick={sendFinishTrick} color="green">
+            <Button onClick={sendFinishTrick} color="green" size="xl">
               Next Trick
             </Button>
           ) : (

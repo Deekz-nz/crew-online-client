@@ -49,7 +49,7 @@ export default function TaskPhaseScreen() {
     {allTasksClaimed && (
       <Center style={{ gridArea: "center" }}>
         {activePlayer?.isHost ? (
-          <Button onClick={sendFinishTaskAllocation}>
+          <Button onClick={sendFinishTaskAllocation} size="xl">
             Start Playing
           </Button>
         ) : (
