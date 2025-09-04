@@ -34,12 +34,13 @@ export default function TaskPhaseScreen() {
       {/* Unclaimed Tasks */}
       <Center style={{ gridArea: "center" }}>
         <Group gap="sm">
-          {unclaimedTasks.map((task, idx) => (
+          {!allTasksClaimed && tasks.map((task, idx) => (
             <TaskCard
               key={idx}
               task={task}
               size="lg"
               onClick={() => sendTakeTask(task)}
+              hideIfClaimed={true}
             />
           ))}
         </Group>

@@ -10,6 +10,7 @@ interface TaskCardProps {
   disabled?: boolean;
   ownerDisplayName?: string;
   bigToken?: boolean;
+  hideIfClaimed?: boolean;
 }
 
 function isSimpleTask(task: BaseTask): task is SimpleTask {
@@ -31,6 +32,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   disabled,
   ownerDisplayName,
   bigToken, 
+  hideIfClaimed
 }) => {
 
   if (isSimpleTask(task)) return (
@@ -41,6 +43,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       disabled={disabled}
       ownerDisplayName={ownerDisplayName}
       bigToken={bigToken}
+      hideIfClaimed={hideIfClaimed}
     />
   )
 
@@ -52,6 +55,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       disabled={disabled}
       ownerDisplayName={ownerDisplayName}
       bigToken={bigToken}
+      hideIfClaimed={hideIfClaimed}
     />
   );
 

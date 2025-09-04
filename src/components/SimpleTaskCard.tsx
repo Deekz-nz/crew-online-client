@@ -3,7 +3,6 @@ import { IconOmega, IconCheck, IconX } from '@tabler/icons-react';
 import { SimpleTask } from '../types';
 import { Avatar } from '@mantine/core';
 
-// Reuse the colorStyles from GameCard
 const colorStyles = {
   yellow: { background: '#FFEB3B', dark: '#F57F17' },
   green: { background: '#4CAF50', dark: '#2E7D32' },
@@ -19,6 +18,7 @@ interface SimpleTaskCardProps {
   disabled?: boolean;
   ownerDisplayName?: string;
   bigToken?: boolean;
+  hideIfClaimed?: boolean;
 }
 
 export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
@@ -27,10 +27,12 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
   onClick,
   disabled,
   ownerDisplayName,
-  bigToken, 
+  bigToken,
+  hideIfClaimed
 }) => {
 
-  let simpleWidth = 80
+  const hideDetails = hideIfClaimed && task.player != "";
+  let simpleWidth = 80;
   if (size === "lg") simpleWidth = 100;
   if (size === "md") simpleWidth = 80;
   if (size === "sm") simpleWidth = 60;
@@ -39,13 +41,13 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
   const { color, number } = card;
   const { background, dark } = colorStyles[color];
 
-  const tokenHeight = bigToken ? simpleWidth : simpleWidth * 0.6; // circle token size
+  const tokenHeight = bigToken ? simpleWidth : simpleWidth * 0.6;
   const tokenGap = 4;
   const cardHeight = simpleWidth * 1.1;
   const wrapperHeight = tokenHeight + tokenGap + cardHeight;
   const isBlack = color === 'black';
 
-  // Token content at top
+  // Content for top token
   let circleContent: React.ReactNode = null;
   if (taskCategory === 'ordered') {
     circleContent = <span style={{ fontWeight: 'bold' }}>{sequenceIndex}</span>;
@@ -56,7 +58,8 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
     circleContent = <IconOmega size={simpleWidth * 0.2} stroke={2} />;
   }
 
-  const isInteractive = onClick && !disabled;
+  const showOnlyBorder = !!hideDetails;
+  const isInteractive = onClick && !disabled && !showOnlyBorder;
 
   return (
     <div
@@ -69,85 +72,92 @@ export const SimpleTaskCard: React.FC<SimpleTaskCardProps> = ({
         alignItems: 'center',
       }}
     >
-      {/* Token Circle */}
-      <div
-        style={{
-          width: tokenHeight,
-          height: tokenHeight,
-          marginBottom: tokenGap,
-          borderRadius: '50%',
-          backgroundColor: circleContent ? 'white' : 'transparent',
-          color: 'black',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: tokenHeight * 0.6,
-          border: circleContent ? '2px solid black' : 'none',
-          boxShadow: circleContent ? '0 0 4px rgba(0, 0, 0, 0.4)' : 'none',
-        }}
-      >
-        {circleContent}
-      </div>
+      {/* Token Circle or invisible spacer to preserve layout */}
+      {showOnlyBorder ? (
+        <div style={{ width: tokenHeight, height: tokenHeight, marginBottom: tokenGap }} />
+      ) : (
+        <div
+          style={{
+            width: tokenHeight,
+            height: tokenHeight,
+            marginBottom: tokenGap,
+            borderRadius: '50%',
+            backgroundColor: circleContent ? 'white' : 'transparent',
+            color: 'black',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontSize: tokenHeight * 0.6,
+            border: circleContent ? '2px solid black' : 'none',
+            boxShadow: circleContent ? '0 0 4px rgba(0, 0, 0, 0.4)' : 'none',
+          }}
+        >
+          {circleContent}
+        </div>
+      )}
 
-      {/* Refactored Task Card Face */}
+      {/* Task Card Face – show only the border when hideDetails */}
       <div
         style={{
           width: simpleWidth,
           height: cardHeight,
-          backgroundColor: background,
+          backgroundColor: showOnlyBorder ? 'transparent' : background,
           border: '2px solid white',
           borderRadius: '12px',
-          boxShadow: '0 2px 8px rgba(255, 255, 255, 0.3)',
+          boxShadow: showOnlyBorder ? 'none' : '0 2px 8px rgba(255, 255, 255, 0.3)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           position: 'relative',
           cursor: isInteractive ? 'pointer' : 'default',
-          opacity: completed || failed ? 0.5 : 1,
+          opacity: showOnlyBorder ? 1 : (completed || failed ? 0.5 : 1),
           transition: 'transform 0.15s ease, filter 0.15s ease',
-          flexDirection: 'column', // Stack number and icon vertically
+          flexDirection: 'column',
         }}
         onClick={isInteractive ? onClick : undefined}
       >
-        {/* Big Center Number */}
-        <span
-          style={{
-            fontWeight: 'bold',
-            fontSize: simpleWidth * 0.5,
-            color: isBlack ? 'white' : dark,
-            textShadow: isBlack ? '0 0 4px white' : 'none',
-            zIndex: 1, // Ensure it's above the icon
-          }}
-        >
-          {(number === 6 || number === 9) ? `${number}.` : `${number}`}
-        </span>
-        {/* Completed / Failed Overlay */}
-        {(completed || failed) && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              pointerEvents: 'none',
-            }}
-          >
-            {completed && (
-              <Avatar radius="xl" size={simpleWidth * 0.4} color="green" variant="filled">
-                <IconCheck size={simpleWidth * 0.25} stroke={2} />
-              </Avatar>
+        {!showOnlyBorder && (
+          <>
+            <span
+              style={{
+                fontWeight: 'bold',
+                fontSize: simpleWidth * 0.5,
+                color: isBlack ? 'white' : dark,
+                textShadow: isBlack ? '0 0 4px white' : 'none',
+                zIndex: 1,
+              }}
+            >
+              {(number === 6 || number === 9) ? `${number}.` : `${number}`}
+            </span>
+
+            {(completed || failed) && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  pointerEvents: 'none',
+                }}
+              >
+                {completed && (
+                  <Avatar radius="xl" size={simpleWidth * 0.4} color="green" variant="filled">
+                    <IconCheck size={simpleWidth * 0.25} stroke={2} />
+                  </Avatar>
+                )}
+                {failed && (
+                  <Avatar radius="xl" size={simpleWidth * 0.4} color="red" variant="filled">
+                    <IconX size={simpleWidth * 0.25} stroke={2} />
+                  </Avatar>
+                )}
+              </div>
             )}
-            {failed && (
-              <Avatar radius="xl" size={simpleWidth * 0.4} color="red" variant="filled">
-                <IconX size={simpleWidth * 0.25} stroke={2} />
-              </Avatar>
-            )}
-          </div>
+          </>
         )}
       </div>
 
       {/* Owner Display Name */}
-      {ownerDisplayName && (
+      {!showOnlyBorder && ownerDisplayName && (
         <div style={{ textAlign: 'center', marginTop: 4, fontSize: '0.85rem' }}>
           {ownerDisplayName}
         </div>
