@@ -6,11 +6,12 @@ import { TaskCard } from "../components/TaskCard";
 import { GameHand } from "../components/GameHand";
 import { CommunicatedCard } from "../components/CommunicatedCard";
 import { Card } from "../types";
-import { IconInfoCircle, IconArrowBackUp } from "@tabler/icons-react";
+import { IconInfoCircle, IconArrowBackUp, IconSettings } from "@tabler/icons-react";
 import { InfoModal } from "../components/InfoModal";
 import { useDisclosure } from "@mantine/hooks";
 import EmojiSendPanel from "../components/EmojiSendPanel";
 import EmojiReceiveArea from "../components/EmojiReceiveArea";
+import { SettingsModal } from "../components/SettingsModal";
 
 interface PlayerGridLayoutProps {
   gridTemplateAreas: string;
@@ -55,6 +56,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
   } = useGameContext();
 
   const [infoOpened, { open: openInfo, close: closeInfo }] = useDisclosure(false);
+  const [settingsOpened, { open: openSettings, close: closeSettings }] = useDisclosure(false);
   
   if (!activePlayer || !room || !playerOrder.length) return null;
 
@@ -226,9 +228,13 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
               <IconInfoCircle size={36} />
             </ActionIcon>
           </Tooltip>
+          <ActionIcon variant="outline" onClick={openSettings} size={56} >
+            <IconSettings size={36} />
+          </ActionIcon>
         </Group>
       </div>
       <InfoModal opened={infoOpened} onClose={closeInfo} />
+      <SettingsModal opened={settingsOpened} onClose={closeSettings} />
       {/* Slot for phase-specific content */}
       {children}
     </Box>

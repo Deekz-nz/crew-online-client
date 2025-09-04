@@ -9,7 +9,7 @@ interface UserSettingsStore extends UserSettings {
 export const useUserSettings = create<UserSettingsStore>()(
   persist(
     set => ({
-      confirmWhenPlayingCard: true,
+      confirmWhenPlayingCard: false,
       setSetting: (key, value) =>
         set(() => ({ [key]: value } as Partial<UserSettings>)),
     }),
