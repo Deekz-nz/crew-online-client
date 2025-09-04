@@ -109,3 +109,11 @@ export interface HighScore {
   tasks: { displayName: string; player: string, taskId: string, evaluationDescription: string, difficulty: number }[];
   difficulty: number;
 }
+
+// User settings
+
+export type SettingValue = boolean | string | number;
+
+export interface UserSettings {
+  confirmWhenPlayingCard: boolean;
+}
