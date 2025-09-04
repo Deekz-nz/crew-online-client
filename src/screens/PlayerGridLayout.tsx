@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Center, Group, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Box, Center, Group, Stack, Text, Tooltip } from "@mantine/core";
 import { ReactNode } from "react";
 import { useGameContext } from "../hooks/GameProvider";
 import PlayerStatus from "../components/PlayerStatus";
@@ -12,6 +12,9 @@ import { useDisclosure } from "@mantine/hooks";
 import EmojiSendPanel from "../components/EmojiSendPanel";
 import EmojiReceiveArea from "../components/EmojiReceiveArea";
 import { SettingsModal } from "../components/SettingsModal";
+import { useUserSettings } from "../hooks/useUserSettings";
+import { modals } from "@mantine/modals";
+import { GameCard } from "../components/GameCard";
 
 interface PlayerGridLayoutProps {
   gridTemplateAreas: string;
@@ -57,6 +60,7 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
 
   const [infoOpened, { open: openInfo, close: closeInfo }] = useDisclosure(false);
   const [settingsOpened, { open: openSettings, close: closeSettings }] = useDisclosure(false);
+  const confirmWhenPlayingCard = useUserSettings(s => s.confirmWhenPlayingCard);
   
   if (!activePlayer || !room || !playerOrder.length) return null;
 
@@ -199,10 +203,24 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
           overlap
           disabled={(!isMyTurn || someoneCommunicating) && !communicateMode}
           onCardClick={(card) => {
+            const playInCommunicateMode = () => onCommunicateCardClick?.(card);
+            const playNormally = () => onCardClick?.(card);
+
             if (communicateMode && onCommunicateCardClick) {
-              onCommunicateCardClick(card);
-            } else if (isMyTurn && onCardClick) {
-              onCardClick(card);
+              if (confirmWhenPlayingCard) {
+                openConfirmPlayCard(card, playInCommunicateMode);
+              } else {
+                playInCommunicateMode();
+              }
+              return;
+            }
+
+            if (isMyTurn && onCardClick) {
+              if (confirmWhenPlayingCard) {
+                openConfirmPlayCard(card, playNormally);
+              } else {
+                playNormally();
+              }
             }
           }}
         />
@@ -239,4 +257,26 @@ export default function PlayerGridLayout({ gridTemplateAreas, children, isMyTurn
       {children}
     </Box>
   );
+}
+
+function openConfirmPlayCard(card: Card, onConfirm: () => void) {
+  modals.openConfirmModal({
+    centered: true,
+    title: 'Play card?',
+    children: (
+      <Stack gap="sm" align="center">
+        <Text size="sm">Are you sure you want to play this card?</Text>
+        <GameCard
+          card={card}
+          size={120}
+          disabled
+          showHoverAnimation={false}
+          shadow
+        />
+      </Stack>
+    ),
+    labels: { confirm: 'Play card', cancel: 'Cancel' },
+    confirmProps: { color: 'teal' },
+    onConfirm,
+  });
 }

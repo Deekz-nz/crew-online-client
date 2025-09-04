@@ -11,6 +11,7 @@ import GameOverScreen from "./screens/GameOverScreen";
 import HighScoresScreen from "./screens/HighScoresScreen";
 import DisconnectModal from "./components/DisconnectModal";
 import { Routes, Route } from "react-router-dom";
+import { ModalsProvider } from "@mantine/modals";
 
 function AppContent() {
   const { room, gameStage, disconnectReason, connectionLogs, reconnect, clearDisconnectReason, joinPending } = useGameContext();
@@ -58,10 +59,12 @@ function AppContent() {
 export default function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark" forceColorScheme="dark">
-      <Notifications />
-      <GameProvider>
-        <AppContent />
-      </GameProvider>
+      <ModalsProvider>
+        <Notifications />
+        <GameProvider>
+          <AppContent />
+        </GameProvider>
+      </ModalsProvider>
     </MantineProvider>
   );
 }
