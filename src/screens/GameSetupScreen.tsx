@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Button,
   Checkbox,
   CopyButton,
@@ -11,6 +12,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useGameContext } from "../hooks/GameProvider";
+import { IconX } from "@tabler/icons-react";
 
 // --- Local-storage keys -----------------------------------------------------
 const LS_SETTINGS = "gameTaskSettings";
@@ -32,7 +34,7 @@ const defaultExpansionSettings = {
 };
 
 export default function GameSetupScreen() {
-  const { players, room, startGame, activePlayer } = useGameContext();
+  const { players, room, startGame, activePlayer, sendKickPlayer } = useGameContext();
   const isHost = activePlayer?.isHost;
 
   // ----- BASE-GAME state ----------------------------------------------------
@@ -173,6 +175,9 @@ export default function GameSetupScreen() {
     setUsePreviousTasks(false);
   };
 
+  const handleKickPlayer = (clientId: string) => {
+    sendKickPlayer(clientId);
+  }
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
@@ -185,10 +190,15 @@ export default function GameSetupScreen() {
       <Text fw={500}>Players:</Text>
       <Stack>
         {players.map((p) => (
-          <Text key={p.sessionId}>
-            {p.displayName} {p.isHost && "(Host)"}{" "}
-            {p.sessionId === room?.sessionId && "(You)"}
-          </Text>
+          <Group align="center">
+            {isHost && p.sessionId != room?.sessionId && (
+              <ActionIcon variant="transparent" onClick={() => handleKickPlayer(p.sessionId)}><IconX/></ActionIcon>
+            )}
+            <Text key={p.sessionId}>
+              {p.displayName} {p.isHost && "(Host)"}{" "}
+              {p.sessionId === room?.sessionId && "(You)"}
+            </Text>
+          </Group>
         ))}
       </Stack>
 
