@@ -69,7 +69,7 @@ export const GameCard: React.FC<GameCardProps> = ({ card, size = 100, shadow = t
     opacity: faded ? 0.5 : 1,
   };
   
-  const shiftUp = size * 0.875 * (cardHoverScale - 1);
+  const shiftUp = size * 1.4 * 0.25;
   const cardHoverStyle: React.CSSProperties = {
     transform: `scale(${cardHoverScale}) translateY(-${shiftUp}px)`,
     filter: 'brightness(1.05)',
